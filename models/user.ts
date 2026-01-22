@@ -4,33 +4,15 @@ export interface IUser extends Document {
   fullname: string;
   email: string;
   password: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
-const UserSchema: Schema<IUser> = new Schema(
-  {
-    fullname: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      minlength: 6,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
+const UserSchema: Schema = new Schema<IUser>({
+  fullname: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-export default mongoose.model<IUser>("User", UserSchema);
+// Check if model already exists
+const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+
+export default User;

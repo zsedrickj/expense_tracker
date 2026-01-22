@@ -1,8 +1,57 @@
-import React from "react";
+"use client"; // Make this a client component
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const SignUpForm = () => {
+  const router = useRouter();
+  const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    // Password confirmation check
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullname, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Registration failed");
+        setLoading(false);
+        return;
+      }
+
+      // Save JWT to localStorage (or cookie)
+      localStorage.setItem("token", data.token);
+
+      // Redirect to dashboard or home page
+      router.push("/dashboard");
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="h-screen w-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Card */}
@@ -26,7 +75,12 @@ const SignUpForm = () => {
         </div>
 
         {/* Form */}
-        <form className="flex flex-col gap-4 p-5 w-full">
+        <form
+          className="flex flex-col gap-4 p-5 w-full"
+          onSubmit={handleSubmit}
+        >
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           {/* Full Name */}
           <label
             htmlFor="fullname"
@@ -37,6 +91,8 @@ const SignUpForm = () => {
           <input
             type="text"
             id="fullname"
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
             placeholder="Enter your full name"
             required
             className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
@@ -52,6 +108,8 @@ const SignUpForm = () => {
           <input
             type="email"
             id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
             className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
@@ -67,6 +125,8 @@ const SignUpForm = () => {
           <input
             type="password"
             id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
             required
             className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
@@ -82,6 +142,8 @@ const SignUpForm = () => {
           <input
             type="password"
             id="confirm-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm your password"
             required
             className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-md text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
@@ -90,9 +152,10 @@ const SignUpForm = () => {
           {/* Sign Up Button */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-emerald-600 dark:bg-emerald-500 text-white py-2 rounded-md hover:bg-emerald-700 dark:hover:bg-emerald-600 text-sm sm:text-base mt-2"
           >
-            Sign Up
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
 
           {/* Login Link */}

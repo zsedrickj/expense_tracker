@@ -39,27 +39,26 @@ export async function POST(req: Request) {
       password: hashedPassword,
     });
 
-    // Generate JWT for automatic login
     const token = generateToken({ id: user._id, email: user.email });
 
-    // Return user info + JWT
-    return NextResponse.json(
-      {
-        message: "User registered successfully",
-        user: {
-          id: user._id,
-          fullname: user.fullname,
-          email: user.email,
-        },
-        token, // <-- frontend will use this token for auth
-      },
-      { status: 201 },
-    );
+    // Create response without sending token in JSON
+    const response = NextResponse.json({
+      message: "User registered successfully",
+      user: { id: user._id, fullname: user.fullname, email: user.email },
+    });
+
+    // Set HttpOnly cookie
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Register error:", error);
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

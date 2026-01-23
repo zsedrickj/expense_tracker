@@ -1,4 +1,5 @@
 import { register } from "@/instrumention";
+import LoginForm from "./login/page";
 
 export default function Home() {
   if (typeof window === "undefined") {
@@ -6,5 +7,9 @@ export default function Home() {
     register().catch(console.error);
   }
 
-  return <main></main>;
+  return (
+    <main>
+      <LoginForm />
+    </main>
+  );
 }

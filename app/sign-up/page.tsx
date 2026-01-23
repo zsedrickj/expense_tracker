@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -11,20 +12,42 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
-    // Password confirmation check
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    // Frontend validation
+    if (!fullname || !email || !password || !confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill in all fields!",
+      });
       return;
     }
 
-    setLoading(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Password Mismatch",
+        text: "Passwords do not match",
+      });
+      return;
+    }
+
     try {
+      setLoading(true);
+
       const res = await fetch("/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,20 +57,37 @@ const SignUpForm = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Registration failed");
+        Swal.fire({
+          icon: "error",
+          title: "Registration Failed",
+          text: data.message || "Something went wrong",
+        });
         setLoading(false);
         return;
       }
 
-      // Save JWT to localStorage (or cookie)
-      localStorage.setItem("token", data.token);
+      // Success alert
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful",
+        text: `Welcome, ${data.user.fullname}!`,
+      }).then(() => {
+        router.push("/dashboard");
+      });
 
-      // Redirect to dashboard or home page
-      router.push("/dashboard");
+      // Reset form
+      setFullname("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setLoading(false);
     } catch (err) {
       console.error(err);
-      setError("Something went wrong");
-    } finally {
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong. Please try again later.",
+      });
       setLoading(false);
     }
   };
@@ -79,8 +119,6 @@ const SignUpForm = () => {
           className="flex flex-col gap-4 p-5 w-full"
           onSubmit={handleSubmit}
         >
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
           {/* Full Name */}
           <label
             htmlFor="fullname"

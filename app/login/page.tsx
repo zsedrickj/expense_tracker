@@ -1,8 +1,85 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link"; // <- import Link
+import Link from "next/link";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation"; // ✅ correct for App Router
 
 const LoginForm = () => {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Frontend validation
+    if (!email || !password) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill in all fields!",
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: data.error || data.message || "Something went wrong",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Success alert + redirect
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        text: `Welcome back, ${data.user.email}!`,
+      }).then(() => {
+        router.push("/dashboard"); // ✅ redirect after user clicks "OK"
+      });
+
+      // Reset form
+      setEmail("");
+      setPassword("");
+      setLoading(false);
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong. Please try again later.",
+      });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="h-screen w-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Card */}
@@ -26,7 +103,10 @@ const LoginForm = () => {
         </div>
 
         {/* Form */}
-        <form className="flex flex-col gap-4 p-5 w-full">
+        <form
+          className="flex flex-col gap-4 p-5 w-full"
+          onSubmit={handleSubmit}
+        >
           <label
             htmlFor="email"
             className="text-sm sm:text-base text-gray-700 dark:text-gray-200"
@@ -38,7 +118,8 @@ const LoginForm = () => {
             type="email"
             id="email"
             placeholder="Enter your email"
-            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <label
@@ -52,7 +133,8 @@ const LoginForm = () => {
             type="password"
             id="password"
             placeholder="Enter your password"
-            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           {/* Remember Me & Forgot Password */}
@@ -72,9 +154,12 @@ const LoginForm = () => {
 
           <button
             type="submit"
-            className="w-full bg-emerald-600 dark:bg-emerald-500 text-white py-2 rounded-md hover:bg-emerald-700 dark:hover:bg-emerald-600 text-sm sm:text-base"
+            className={`w-full bg-emerald-600 dark:bg-emerald-500 text-white py-2 rounded-md hover:bg-emerald-700 dark:hover:bg-emerald-600 text-sm sm:text-base ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           {/* Sign Up Link */}

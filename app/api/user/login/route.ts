@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import DbConnnection from "@/lib/mongodb";
 import User from "@/models/user";
 import bcrypt from "bcrypt";
+import { generateToken } from "@/lib/jwt";
 
 interface LoginRequestBody {
   email: string;
@@ -15,7 +16,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const { email, password }: LoginRequestBody = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json( 
+      return NextResponse.json(
         { error: "Email and password are required" },
         { status: 400 },
       );
@@ -41,14 +42,23 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
-    // ✅ Login success
-    return NextResponse.json({
+    const token = generateToken({ id: user._id, email: user.email });
+
+    const response = NextResponse.json({
       success: true,
       user: {
         id: user._id,
         email: user.email,
       },
     });
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: "/",
+    });
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json(

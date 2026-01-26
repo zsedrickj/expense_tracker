@@ -4,6 +4,7 @@ import NavBar from "@/components/ui/navbar";
 import React, { useState } from "react";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import DashboardTable from "@/components/ui/tables/dashboardTable/dashboardTable";
+import DashboardPage from "@/pages/dashboardPage";
 
 const Dashboard = () => {
   const [isClosed, setIsClosed] = useState(true);
@@ -45,46 +46,7 @@ const Dashboard = () => {
       <NavBar isClosed={isClosed} setIsClosed={setIsClosed} />
 
       {/* Main Content */}
-      <div className="flex-1 p-5 pt-20 transition-all duration-300 lg:px-20">
-        <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
-            <p className="text-gray-500">Overview of your financial activity</p>
-          </div>
-          <AddButton name="Add Transaction" />
-        </div>
-        <div className="flex flex-col gap-10 ">
-          {/* Stat Boxes */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {stats.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col h-40 w-full p-5 gap-5 bg-white rounded-2xl shadow-lg"
-                >
-                  <div className="flex justify-between items-center">
-                    <div
-                      className={`w-10 h-10 flex items-center justify-center rounded-lg ${item.iconBg}`}
-                    >
-                      <Icon className={item.iconColor} />
-                    </div>
-                    <p className={`text-sm font-medium ${item.percentColor}`}>
-                      {item.percent}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-gray-500 text-sm">{item.title}</p>
-                    <h1 className="text-2xl font-semibold">{item.amount}</h1>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <DashboardTable />
-        </div>
-      </div>
+      <DashboardPage />
     </div>
   );
 };

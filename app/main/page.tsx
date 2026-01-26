@@ -1,44 +1,12 @@
 "use client";
-import AddButton from "@/components/ui/addButton";
-import NavBar from "@/components/ui/navbar";
 import React, { useState } from "react";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
-import DashboardTable from "@/components/ui/tables/dashboardTable/dashboardTable";
+import NavBar from "@/components/ui/navbar";
 import DashboardPage from "@/pages/dashboardPage";
+import AddTransaction from "@/components/ui/addTransaction";
 
 const Dashboard = () => {
   const [isClosed, setIsClosed] = useState(true);
-
-  // 👉 example data
-  const stats = [
-    {
-      title: "Total Income",
-      amount: "$8,450.00",
-      percent: "+12.5%",
-      icon: TrendingUp,
-      iconBg: "bg-emerald-100",
-      iconColor: "text-emerald-600",
-      percentColor: "text-emerald-500",
-    },
-    {
-      title: "Total Expenses",
-      amount: "$3,120.00",
-      percent: "-5.2%",
-      icon: TrendingDown,
-      iconBg: "bg-rose-100",
-      iconColor: "text-rose-600",
-      percentColor: "text-rose-500",
-    },
-    {
-      title: "Balance",
-      amount: "$5,330.00",
-      percent: "+7.3%",
-      icon: Wallet,
-      iconBg: "bg-sky-100",
-      iconColor: "text-sky-600",
-      percentColor: "text-sky-500",
-    },
-  ];
+  const [showAddTransaction, setShowAddTransaction] = useState(false); // modal state
 
   return (
     <div className="h-screen w-screen bg-gray-100 lg:flex overflow-x-auto">
@@ -46,7 +14,36 @@ const Dashboard = () => {
       <NavBar isClosed={isClosed} setIsClosed={setIsClosed} />
 
       {/* Main Content */}
-      <DashboardPage />
+      <div className="flex-1 relative transition-all duration-300">
+        {!isClosed && (
+          <div className="absolute inset-0 bg-black/5 backdrop-blur-[3px] z-10 pointer-events-none md:hidden"></div>
+        )}
+
+        {/* Dashboard content */}
+        <DashboardPage setShowAddTransaction={setShowAddTransaction} />
+
+        {/* Modal */}
+        {showAddTransaction && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            {/* Overlay */}
+            <div
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              onClick={() => setShowAddTransaction(false)}
+            ></div>
+
+            {/* Modal content */}
+            <div className="relative z-50">
+              <AddTransaction />
+              <button
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+                onClick={() => setShowAddTransaction(false)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

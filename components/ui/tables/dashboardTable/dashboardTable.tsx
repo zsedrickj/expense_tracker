@@ -51,7 +51,7 @@ const DashboardTable = () => {
           className="w-64 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
-
+      <hr />
       {/* Table */}
       <div className="max-h-75 h-75 overflow-y-auto">
         <Table>

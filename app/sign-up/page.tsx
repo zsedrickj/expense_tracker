@@ -72,7 +72,7 @@ const SignUpForm = () => {
         title: "Registration Successful",
         text: `Welcome, ${data.user.fullname}!`,
       }).then(() => {
-        router.push("/dashboard");
+        router.push("/main");
       });
 
       // Reset form

@@ -5,7 +5,7 @@ import AddButton from "@/components/ui/addButton";
 import DashboardTable from "@/components/ui/tables/dashboardTable/dashboardTable";
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { useModal } from "@/hooks/useModal";
-
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 const stats = [
   {
     title: "Total Income",
@@ -37,7 +37,11 @@ const stats = [
 ];
 
 export default function DashboardPage() {
+  const isVerified = useAuthGuard();
   const { openAddTransaction } = useModal();
+  if (!isVerified) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div className="flex-1 transition-all duration-300  overflow-x-auto">

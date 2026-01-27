@@ -5,20 +5,26 @@ import { useRouter } from "next/navigation";
 
 export function useAuthGuard() {
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState<boolean | null>(null); // null = loading
 
   useEffect(() => {
-    const token = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("token="))
-      ?.split("=")[1];
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/user/verify");
+        const data = await res.json();
 
-    if (!token) {
-      router.replace("/"); // redirect to login
-    } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsVerified(true); // user has token
+        if (!data.authenticated) {
+          router.replace("/"); // redirect to login kung di authenticated
+        } else {
+          setIsVerified(true); // authenticated
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        router.replace("/"); // fallback redirect
+      }
     }
+
+    checkAuth();
   }, [router]);
 
   return isVerified;

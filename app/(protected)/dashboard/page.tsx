@@ -1,11 +1,10 @@
+"use client";
+
+import React from "react";
 import AddButton from "@/components/ui/addButton";
 import DashboardTable from "@/components/ui/tables/dashboardTable/dashboardTable";
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
-import React from "react";
-
-interface DashboardPageProps {
-  setShowAddTransaction: React.Dispatch<React.SetStateAction<boolean>>;
-}
+import { useModal } from "@/hooks/useModal";
 
 const stats = [
   {
@@ -37,23 +36,23 @@ const stats = [
   },
 ];
 
-const DashboardPage: React.FC<DashboardPageProps> = ({
-  setShowAddTransaction,
-}) => {
+export default function DashboardPage() {
+  const { openAddTransaction } = useModal();
+
   return (
-    <div className="flex-1 p-5 pt-20 transition-all duration-300 lg:px-20 overflow-x-auto">
+    <div className="flex-1 transition-all duration-300  overflow-x-auto">
+      {/* Header */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
           <p className="text-gray-500">Overview of your financial activity</p>
         </div>
-        <AddButton
-          name="Add Transaction"
-          onClick={() => setShowAddTransaction(true)} // open modal
-        />
+
+        <AddButton name="Add Transaction" onClick={openAddTransaction} />
       </div>
-      <div className="flex flex-col gap-10 ">
-        {/* Stat Boxes */}
+
+      {/* Stats */}
+      <div className="flex flex-col gap-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {stats.map((item, index) => {
             const Icon = item.icon;
@@ -81,10 +80,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             );
           })}
         </div>
+
+        {/* Dashboard Table */}
         <DashboardTable />
       </div>
     </div>
   );
-};
-
-export default DashboardPage;
+}

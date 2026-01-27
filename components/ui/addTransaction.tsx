@@ -32,11 +32,11 @@ const AddTransaction = ({
           {/* Type Selector */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-600">Type</label>
-            <div className="flex w-full gap-3 p-1 bg-gray-100 rounded-xl">
+            <div className="flex w-full gap-3 p-1  ">
               <button
                 type="button"
                 onClick={() => setTransType("expense")}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-gray-100 ${
                   transType === "expense"
                     ? "bg-red-500 text-white shadow-md"
                     : "text-gray-500 hover:bg-gray-200"
@@ -69,7 +69,7 @@ const AddTransaction = ({
           </div>
 
           {/* Category Select (FIXED) */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 ">
             <label className="text-sm font-medium text-gray-600">
               Category
             </label>

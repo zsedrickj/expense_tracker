@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -32,11 +33,26 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
   }, []);
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "transaction", label: "Transaction", icon: ArrowLeftRight },
-    { id: "reports", label: "Reports", icon: FileText },
-    { id: "categories", label: "Categories", icon: Folder },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/dashboard",
+    },
+    {
+      id: "transaction",
+      label: "Transaction",
+      icon: ArrowLeftRight,
+      href: "/transaction",
+    },
+    { id: "reports", label: "Reports", icon: FileText, href: "/reports" },
+    {
+      id: "categories",
+      label: "Categories",
+      icon: Folder,
+      href: "/categories",
+    },
+    { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
   ];
 
   const sidebarClasses = isLargeScreen
@@ -57,12 +73,7 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
           <div
             onClick={() => setIsClosed(!isClosed)}
             className={`flex justify-center items-center p-3 rounded-2xl cursor-pointer transition-all duration-300
-              ${
-                isClosed
-                  ? "shadow-[0_0_15px_rgba(0,0,0,0.5)] bg-white"
-                  : "shadow-[9px_9px_15px_rgba(16,185,129,0.8)] dark:shadow-[10px_10px_25px_rgba(52,211,153,0.85)] bg-white"
-              }
-            `}
+              ${isClosed ? "shadow-[0_0_15px_rgba(0,0,0,0.5)] bg-white" : "shadow-[9px_9px_15px_rgba(16,185,129,0.8)] bg-white"}`}
           >
             {isClosed ? <Menu size={20} /> : <X size={20} />}
           </div>
@@ -92,21 +103,17 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
         </div>
       )}
 
-      {/* MENU ITEMS (only show if open or desktop) */}
+      {/* MENU ITEMS */}
       {(!isClosed || isLargeScreen) &&
         menuItems.map((item) => {
           const Icon = item.icon;
           return (
-            <div
+            <Link
               key={item.id}
+              href={item.href}
+              className={`flex items-center gap-2 w-full p-4 rounded-2xl transition-colors
+                ${active === item.id ? "bg-emerald-100 text-emerald-600" : "text-black hover:bg-gray-100"}`}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-2 w-full p-4 cursor-pointer rounded-2xl transition-colors
-                ${
-                  active === item.id
-                    ? "bg-emerald-100 text-emerald-600"
-                    : "text-black hover:bg-gray-100"
-                }
-              `}
             >
               <Icon
                 size={30}
@@ -115,7 +122,7 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
                 }
               />
               <span className="font-medium">{item.label}</span>
-            </div>
+            </Link>
           );
         })}
     </div>

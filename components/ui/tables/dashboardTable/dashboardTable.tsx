@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/useDebounce";
 
-/* 🔹 Debounce Hook */
-
 const DashboardTable = () => {
   const [search, setSearch] = useState("");
 

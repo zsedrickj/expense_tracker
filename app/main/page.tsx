@@ -32,14 +32,9 @@ const Dashboard = () => {
             ></div>
 
             {/* Modal content */}
-            <div className="relative z-50">
-              <AddTransaction />
-              <button
-                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
-                onClick={() => setShowAddTransaction(false)}
-              >
-                ✕
-              </button>
+            <div className="relative z-50 flex items-center">
+              <AddTransaction showAddTransaction={showAddTransaction} setShowAddTransaction={setShowAddTransaction} />
+              
             </div>
           </div>
         )}

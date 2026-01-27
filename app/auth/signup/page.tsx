@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-const SignUpForm = () => {
+export const SignUpForm = () => {
   const router = useRouter();
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
@@ -72,7 +72,7 @@ const SignUpForm = () => {
         title: "Registration Successful",
         text: `Welcome, ${data.user.fullname}!`,
       }).then(() => {
-        router.push("/main");
+        router.push("/dashboard");
       });
 
       // Reset form
@@ -200,7 +200,7 @@ const SignUpForm = () => {
           <p className="text-center text-sm sm:text-base text-gray-700 dark:text-gray-200 mt-4">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href="/auth/login"
               className="text-emerald-600 dark:text-emerald-400 hover:underline"
             >
               Login

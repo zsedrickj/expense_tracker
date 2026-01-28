@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Table,
   TableHeader,
@@ -9,26 +9,14 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { useDebounce } from "@/hooks/useDebounce";
+import { useDashboardTable } from "@/hooks/useDashboardTable";
 
-const DashboardTable = () => {
-  const [search, setSearch] = useState("");
-
-  const debouncedSearch = useDebounce(search, 400);
-
-  const transactions = [
-    { id: 1, description: "Salary", amount: "+₱25,000" },
-    { id: 2, description: "Groceries", amount: "-₱1,200" },
-    { id: 3, description: "Electric Bill", amount: "-₱2,350" },
-    { id: 4, description: "Freelance Project", amount: "+₱8,500" },
-  ];
-
-  const filteredTransactions = transactions.filter((item) =>
-    item.description.toLowerCase().includes(debouncedSearch.toLowerCase()),
-  );
+const DashboardTable: React.FC = () => {
+  // ✅ useDashboardTable now manages its own data
+  const { search, setSearch, filteredTransactions } = useDashboardTable();
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-5 w-full max-h-full ">
+    <div className="bg-white rounded-2xl shadow-lg p-5 w-full max-h-full">
       {/* Header */}
       <div className="mb-4 flex flex-col justify-between gap-3 md:flex-row">
         <div>
@@ -55,7 +43,7 @@ const DashboardTable = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Description</TableHead>
+              <TableHead>Title</TableHead>
               <TableHead className="text-right">Amount</TableHead>
             </TableRow>
           </TableHeader>
@@ -64,7 +52,7 @@ const DashboardTable = () => {
             {filteredTransactions.length > 0 ? (
               filteredTransactions.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.description}</TableCell>
+                  <TableCell>{item.title}</TableCell>
                   <TableCell
                     className={`text-right font-semibold ${
                       item.amount.startsWith("+")

@@ -6,45 +6,41 @@ import DashboardTable from "@/components/ui/tables/dashboardTable/dashboardTable
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-const stats = [
-  {
-    title: "Total Income",
-    amount: "$8,450.00",
-    percent: "+12.5%",
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+
+// UI-only mapping (design logic stays here)
+const iconMap = {
+  income: {
     icon: TrendingUp,
     iconBg: "bg-emerald-100",
     iconColor: "text-emerald-600",
     percentColor: "text-emerald-500",
   },
-  {
-    title: "Total Expenses",
-    amount: "$3,120.00",
-    percent: "-5.2%",
+  expense: {
     icon: TrendingDown,
     iconBg: "bg-rose-100",
     iconColor: "text-rose-600",
     percentColor: "text-rose-500",
   },
-  {
-    title: "Balance",
-    amount: "$5,330.00",
-    percent: "+7.3%",
+  balance: {
     icon: Wallet,
     iconBg: "bg-sky-100",
     iconColor: "text-sky-600",
     percentColor: "text-sky-500",
   },
-];
+};
 
 export default function DashboardPage() {
   const isVerified = useAuthGuard();
   const { openAddTransaction } = useModal();
+  const stats = useDashboardStats();
+
   if (!isVerified) {
-    return null; // or a loading spinner
+    return null; // or loading spinner
   }
 
   return (
-    <div className="flex-1 transition-all duration-300  overflow-x-auto">
+    <div className="flex-1 transition-all duration-300 overflow-x-auto">
       {/* Header */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
@@ -59,7 +55,9 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {stats.map((item, index) => {
-            const Icon = item.icon;
+            const Icon = iconMap[item.type].icon;
+            const styles = iconMap[item.type];
+
             return (
               <div
                 key={index}
@@ -67,18 +65,22 @@ export default function DashboardPage() {
               >
                 <div className="flex justify-between items-center">
                   <div
-                    className={`w-10 h-10 flex items-center justify-center rounded-lg ${item.iconBg}`}
+                    className={`w-10 h-10 flex items-center justify-center rounded-lg ${styles.iconBg}`}
                   >
-                    <Icon className={item.iconColor} />
+                    <Icon className={styles.iconColor} />
                   </div>
-                  <p className={`text-sm font-medium ${item.percentColor}`}>
-                    {item.percent}
+
+                  <p className={`text-sm font-medium ${styles.percentColor}`}>
+                    {item.percent > 0 ? "+" : ""}
+                    {item.percent}%
                   </p>
                 </div>
 
                 <div>
                   <p className="text-gray-500 text-sm">{item.title}</p>
-                  <h1 className="text-2xl font-semibold">{item.amount}</h1>
+                  <h1 className="text-2xl font-semibold">
+                    ₱{item.amount.toLocaleString()}
+                  </h1>
                 </div>
               </div>
             );

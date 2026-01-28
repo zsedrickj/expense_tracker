@@ -1,38 +1,29 @@
-// app/proxy.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "@/lib/jwt";
 
-export default function proxy(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
-  const { pathname } = request.nextUrl;
+export default function proxy(req: NextRequest) {
+  const token = req.cookies.get("token")?.value;
+  const { pathname } = req.nextUrl;
 
-  const protectedRoutes = [
-    "/dashboard",
-    "/transaction",
-    "/reports",
-    "/categories",
-    "/settings",
-  ];
+  const isAuthPage = pathname === "/" || pathname.startsWith("/auth/login");
 
-  const isProtected = protectedRoutes.some((route) =>
-    pathname.startsWith(route),
-  );
+  const isProtectedRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/transaction") ||
+    pathname.startsWith("/reports") ||
+    pathname.startsWith("/categories") ||
+    pathname.startsWith("/settings");
 
-  if (isProtected) {
-    if (!token) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/";
-      return NextResponse.redirect(url);
-    }
+  // ❌ WALANG TOKEN → redirect sa login ("/")
+  if (!token && isProtectedRoute) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
-    try {
-      verifyToken(token);
-    } catch {
-      const url = request.nextUrl.clone();
-      url.pathname = "/";
-      return NextResponse.redirect(url);
-    }
+  // ✅ MAY TOKEN → bawal sa "/" at "/auth/login"
+  if (token && isAuthPage) {
+    // dito natin gagawin server-side default redirect sa lastPage kung may cookie
+    // since localStorage hindi pwedeng basahin sa server, default sa /dashboard
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   return NextResponse.next();
@@ -40,6 +31,8 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
+    "/auth/login",
     "/dashboard/:path*",
     "/transaction/:path*",
     "/reports/:path*",

@@ -62,7 +62,7 @@ const LoginForm = () => {
         title: "Login Successful",
         text: `Welcome back, ${data.user.email}!`,
       }).then(() => {
-        router.push("/dashboard"); // ✅ redirect after user clicks "OK"
+        router.replace("/dashboard");
       });
 
       // Reset form

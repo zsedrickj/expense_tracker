@@ -1,69 +1,30 @@
+// src/app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
-import DbConnnection from "@/lib/mongodb";
-import User from "@/models/user";
-import bcrypt from "bcrypt";
-import { generateToken } from "@/lib/jwt";
+import { login } from "@/services/auth.service";
 
-interface LoginRequestBody {
-  email: string;
-  password: string;
-}
-
-export async function POST(request: Request): Promise<NextResponse> {
+export async function POST(request: Request) {
   try {
-    await DbConnnection();
-
-    const { email, password }: LoginRequestBody = await request.json();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 },
-      );
-    }
-
-    // 🔍 Find user by email
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 },
-      );
-    }
-
-    // 🔐 Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 },
-      );
-    }
-
-    const token = generateToken({ id: user._id, email: user.email });
+    const body = await request.json();
+    const result = await login(body);
 
     const response = NextResponse.json({
       success: true,
-      user: {
-        id: user._id,
-        email: user.email,
-      },
+      user: result.user,
     });
-    response.cookies.set("token", token, {
+
+    response.cookies.set("token", result.token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
+
     return response;
-  } catch (error) {
-    console.error(error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
+      { error: error.message || "Internal server error" },
+      { status: error.status || 500 },
     );
   }
 }

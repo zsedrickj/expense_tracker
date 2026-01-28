@@ -56,7 +56,7 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
   ];
 
   const sidebarClasses = isLargeScreen
-    ? "lg:w-[25%] lg:p-5 lg:border-r lg:border-gray-400 h-full"
+    ? "md:w-[17%] lg:p-5 lg:border-r lg:border-gray-400 h-full"
     : isClosed
       ? "w-10 fixed top-5 left-5 z-50 rounded-2xl"
       : "w-[75%] fixed top-0 left-0 h-full border-r border-gray-400 bg-white p-5 z-50";

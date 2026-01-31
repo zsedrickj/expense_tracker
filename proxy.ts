@@ -14,12 +14,12 @@ export default function proxy(req: NextRequest) {
     pathname.startsWith("/categories") ||
     pathname.startsWith("/settings");
 
-  // ❌ WALANG TOKEN → redirect sa login ("/")
+  // WALANG TOKEN → redirect sa login ("/")
   if (!token && isProtectedRoute) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // ✅ MAY TOKEN → bawal sa "/" at "/auth/login"
+  // MAY TOKEN → bawal sa "/" at "/auth/login"
   if (token && isAuthPage) {
     // dito natin gagawin server-side default redirect sa lastPage kung may cookie
     // since localStorage hindi pwedeng basahin sa server, default sa /dashboard

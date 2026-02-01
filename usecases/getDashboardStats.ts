@@ -10,7 +10,7 @@ export const getDashboardStats = async (): Promise<DashboardStat[]> => {
     },
     {
       title: "Total Expenses",
-      amount: 3120,
+      amount: 31202,
       percent: -5.2,
       type: "expense",
     },

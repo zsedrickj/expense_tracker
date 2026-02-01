@@ -10,3 +10,4 @@ export const getDashboardTransactions = async (): Promise<Transaction[]> => {
     { id: 5, title: "Freelance Project", amount: "+₱8,500" },
   ];
 };
+ 

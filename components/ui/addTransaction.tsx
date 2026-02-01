@@ -11,8 +11,6 @@ const AddTransaction = ({
   showAddTransaction,
   setShowAddTransaction,
 }: AddTransactionProps) => {
-  const [transType, setTransType] = useState<"expense" | "income">("expense");
-
   if (!showAddTransaction) return null;
 
   return (
@@ -29,35 +27,6 @@ const AddTransaction = ({
         <hr className="border-gray-200" />
 
         <form className="flex flex-col gap-4">
-          {/* Type Selector */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-600">Type</label>
-            <div className="flex w-full gap-3 p-1  ">
-              <button
-                type="button"
-                onClick={() => setTransType("expense")}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-gray-100 ${
-                  transType === "expense"
-                    ? "bg-red-500 text-white shadow-md"
-                    : "text-gray-500 hover:bg-gray-200"
-                }`}
-              >
-                Expense
-              </button>
-              <button
-                type="button"
-                onClick={() => setTransType("income")}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  transType === "income"
-                    ? "bg-green-500 text-white shadow-md"
-                    : "text-gray-500 hover:bg-gray-200"
-                }`}
-              >
-                Income
-              </button>
-            </div>
-          </div>
-
           {/* Title Input */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-600">Title</label>

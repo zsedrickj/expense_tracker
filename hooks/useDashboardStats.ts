@@ -6,7 +6,7 @@ export const useDashboardStats = () => {
   const [stats, setStats] = useState<DashboardStat[]>([]);
 
   useEffect(() => {
-    getDashboardStats().then(setStats);
+    getDashboardStats().then(setStats).catch(console.error);
   }, []);
 
   return stats;

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { Transaction } from "@/entities/transaction";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getDashboardTransactions } from "@/usecases/getTransactions";
+import { Transaction } from "@/types/transaction.types";
 
 export const useDashboardTable = () => {
   const [search, setSearch] = useState("");

@@ -1,13 +1,21 @@
-// src/usecases/getCategories.ts
-import { Category } from "@/entities/category";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Category } from "@/types/category.types";
 
 export const getCategories = async (): Promise<Category[]> => {
-  return [
-    { id: 1, name: "Food", type: "expense" },
-    { id: 2, name: "Transport", type: "expense" },
-    { id: 3, name: "Utilities", type: "expense" },
-    { id: 4, name: "Freelance", type: "income" },
-    { id: 5, name: "Salary", type: "income" },
-    { id: 6, name: "Investment", type: "income" },
-  ];
+  const res = await fetch("/api/categories", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+
+  const data = await res.json();
+
+  return data.map((cat: any) => ({
+    id: cat._id.toString(), // make sure this is string version of ObjectId
+    name: cat.name,
+    type: cat.type,
+  }));
 };

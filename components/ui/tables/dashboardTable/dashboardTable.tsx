@@ -55,9 +55,7 @@ const DashboardTable: React.FC = () => {
                   <TableCell>{item.title}</TableCell>
                   <TableCell
                     className={`text-right font-semibold ${
-                      item.amount.startsWith("+")
-                        ? "text-emerald-600"
-                        : "text-rose-600"
+                      item.amount ? "text-emerald-600" : "text-rose-600"
                     }`}
                   >
                     {item.amount}

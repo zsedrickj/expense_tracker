@@ -59,7 +59,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           <div className="absolute inset-0 bg-black/5 backdrop-blur-[3px] z-10 pointer-events-none md:hidden" />
         )}
 
-        <div className="p-5 pt-20 md:px-20">{children}</div>
+        <div className="p-5 pt-20 font-sans md:px-20">{children}</div>
 
         {showAddTransaction && (
           <AddTransaction

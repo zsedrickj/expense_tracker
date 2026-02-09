@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getDashboardStats } from "@/usecases/getDashboardStats";
-import { DashboardStat } from "@/entities/dashboardStats";
+import { DashboardStat } from "@/types/dashboardStats";
 
 export const useDashboardStats = () => {
   const [stats, setStats] = useState<DashboardStat[]>([]);

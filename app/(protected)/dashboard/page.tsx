@@ -44,7 +44,7 @@ export default function DashboardPage() {
             return (
               <div
                 key={index}
-                className="flex flex-col h-40 w-full p-5 gap-5 bg-white rounded-2xl shadow-lg"
+                className="flex flex-col h-40 w-full p-5 gap-5 bg-white rounded-2xl shadow-lg hover:shadow-2xl cursor-pointer"
               >
                 <div className="flex justify-between items-center">
                   <div

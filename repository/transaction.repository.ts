@@ -10,9 +10,13 @@ import { Transaction as TransactionDTO } from "@/types/transaction.types";
 const mapTransaction = (doc: any): TransactionDTO => ({
   id: doc._id.toString(),
   userId: doc.userId.toString(),
-  categoryId: doc.categoryId._id
-    ? doc.categoryId._id.toString()
-    : doc.categoryId.toString(),
+ categoryId: doc.categoryId
+    ? {
+        _id: doc.categoryId._id.toString(),
+        name: doc.categoryId.name,
+        type: doc.categoryId.type,
+      }
+    : null,
   title: doc.title,
   amount: doc.amount,
   transactionDate: doc.transactionDate.toISOString(),

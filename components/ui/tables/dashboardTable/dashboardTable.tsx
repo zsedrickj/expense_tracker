@@ -12,7 +12,6 @@ import {
 import { useDashboardTable } from "@/hooks/useDashboardTable";
 
 const DashboardTable: React.FC = () => {
-  // ✅ useDashboardTable now manages its own data
   const { search, setSearch, filteredTransactions } = useDashboardTable();
 
   return (
@@ -37,7 +36,9 @@ const DashboardTable: React.FC = () => {
           className="w-64 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
+
       <hr />
+
       {/* Table */}
       <div className="max-h-75 h-75 overflow-y-auto">
         <Table>
@@ -50,18 +51,27 @@ const DashboardTable: React.FC = () => {
 
           <TableBody>
             {filteredTransactions.length > 0 ? (
-              filteredTransactions.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.title}</TableCell>
-                  <TableCell
-                    className={`text-right font-semibold ${
-                      item.amount ? "text-emerald-600" : "text-rose-600"
-                    }`}
-                  >
-                    {item.amount}
-                  </TableCell>
-                </TableRow>
-              ))
+              filteredTransactions.map((item) => {
+                // 🔍 DEBUG LOGS
+                console.log("FULL ITEM:", item);
+                console.log("CATEGORY ID:", item.categoryId);
+                console.log("CATEGORY TYPE:", item.categoryId?.type);
+
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.title}</TableCell>
+                    <TableCell
+                      className={`text-right font-semibold ${
+                        item.categoryId?.type === "income"
+                          ? "text-emerald-600"
+                          : "text-rose-600"
+                      }`}
+                    >
+                      {item.amount}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell

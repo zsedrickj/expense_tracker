@@ -1,10 +1,12 @@
 // types/transaction.types.ts
 
+import { CategoryRef } from "./category.types";
+
 /** Shared domain model (API response shape) */
 export interface Transaction {
   id: string;
   userId: string;
-  categoryId: string;
+  categoryId: CategoryRef | null;
   title: string;
   amount: number;
   transactionDate: string;

@@ -35,14 +35,17 @@ export const createTransaction = async (
 };
 
 /** Get all transactions of a user */
-export const getUserTransactions = async (
-  userId: string,
-): Promise<TransactionDTO[]> => {
+export const getUserTransactions = async (userId: string) => {
   const transactions = await TransactionModel.find({ userId })
     .sort({ transactionDate: -1 })
-    .populate("categoryId", "name type"); // optional populate
+    .populate("categoryId", "name type");
 
-  return transactions.map(mapTransaction);
+  return transactions.map((tx) => ({
+    id: tx._id.toString(),
+    title: tx.title,
+    amount: tx.amount,
+    categoryId: tx.categoryId, // 👈 KEEP OBJECT
+  }));
 };
 
 /** Get single transaction by id */

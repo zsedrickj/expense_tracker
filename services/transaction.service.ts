@@ -44,7 +44,8 @@ export const getUserTransactions = async (userId: string) => {
     id: tx._id.toString(),
     title: tx.title,
     amount: tx.amount,
-    categoryId: tx.categoryId, // 👈 KEEP OBJECT
+    categoryId: tx.categoryId,
+    createdAt: tx.createdAt,
   }));
 };
 
@@ -84,23 +85,46 @@ export const deleteTransaction = async (id: string): Promise<boolean> => {
 
 /** Get dashboard stats: total income, total expenses, balance */
 export const getDashboardStats = async (userId: string) => {
-  // Fetch all transactions for the user with category type
   const transactions = await fetchTransactionsForDashboard(userId);
 
   let totalIncome = 0;
   let totalExpenses = 0;
 
   transactions.forEach((tx: any) => {
-    if (tx.categoryId.type === "income") totalIncome += tx.amount;
-    else if (tx.categoryId.type === "expense") totalExpenses += tx.amount;
+    if (tx.categoryId?.type === "income") totalIncome += tx.amount;
+    else if (tx.categoryId?.type === "expense") totalExpenses += tx.amount;
   });
 
   const balance = totalIncome - totalExpenses;
+  const total = totalIncome + totalExpenses;
+
+  // Calculate percentages
+  const totalIncomePercent = total
+    ? Math.round((totalIncome / total) * 100)
+    : 0;
+  const totalExpensesPercent = total
+    ? Math.round((totalExpenses / total) * 100)
+    : 0;
 
   return [
-    { id: "1", title: "Total Income", amount: `${totalIncome}` },
-    { id: "2", title: "Total Expenses", amount: `${totalExpenses}` },
-    { id: "3", title: "Balance", amount: `${balance}` },
+    {
+      id: "1",
+      title: "Total Income",
+      amount: `${totalIncome}`,
+      percent: totalIncomePercent, // ✅ new
+    },
+    {
+      id: "2",
+      title: "Total Expenses",
+      amount: `${totalExpenses}`,
+      percent: totalExpensesPercent, // ✅ new
+    },
+    {
+      id: "3",
+      title: "Balance",
+      amount: `${balance}`,
+      percent: 0, // optional, you can leave balance percent as 0
+    },
   ];
 };
 

@@ -63,7 +63,7 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
 
   return (
     <div
-      className={`flex flex-col gap-5 bg-white transition-all duration-300 ease-in-out ${sidebarClasses}`}
+      className={`flex flex-col  bg-white transition-all duration-300 ease-in-out ${sidebarClasses}`}
     >
       {/* TOGGLE BUTTON ONLY ON MOBILE/TABLET */}
       {!isLargeScreen && (

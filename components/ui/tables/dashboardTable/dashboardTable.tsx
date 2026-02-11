@@ -56,18 +56,24 @@ const DashboardTable: React.FC = () => {
                 console.log("FULL ITEM:", item);
                 console.log("CATEGORY ID:", item.categoryId);
                 console.log("CATEGORY TYPE:", item.categoryId?.type);
+                console.log("CREATED AT:", item.createdAt);
 
                 return (
                   <TableRow key={item.id}>
                     <TableCell>{item.title}</TableCell>
-                    <TableCell
-                      className={`text-right font-semibold ${
-                        item.categoryId?.type === "income"
-                          ? "text-emerald-600"
-                          : "text-rose-600"
-                      }`}
-                    >
-                      {item.amount}
+                    <TableCell className="text-right font-semibold">
+                      <div
+                        className={`${
+                          item.categoryId?.type === "income"
+                            ? "text-emerald-600"
+                            : "text-rose-600"
+                        }`}
+                      >
+                        {item.amount}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {new Date(item.createdAt).toLocaleDateString()}{" "}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

@@ -51,35 +51,29 @@ const DashboardTable: React.FC = () => {
 
           <TableBody>
             {filteredTransactions.length > 0 ? (
-              filteredTransactions.map((item) => {
-                // 🔍 DEBUG LOGS
-                console.log("FULL ITEM:", item);
-                console.log("CATEGORY ID:", item.categoryId);
-                console.log("CATEGORY TYPE:", item.categoryId?.type);
-                console.log("CREATED AT:", item.createdAt);
+              filteredTransactions.map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell>{item.title}</TableCell>
 
-                return (
-                  <TableRow key={item._id}>
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell className="text-right font-semibold">
-                      <div
-                        className={`${
-                          item.categoryId?.type === "income"
-                            ? "text-emerald-600"
-                            : "text-rose-600"
-                        }`}
-                      >
-                        {item.amount}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {new Date(item.createdAt).toLocaleDateString()}{" "}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+                  <TableCell className="text-right font-semibold">
+                    <div
+                      className={
+                        item.categoryId?.type === "income"
+                          ? "text-emerald-600"
+                          : "text-rose-600"
+                      }
+                    >
+                      {item.amount}
+                    </div>
+
+                    <div className="text-xs text-gray-400">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
             ) : (
-              <TableRow>
+              <TableRow key="empty-row">
                 <TableCell
                   colSpan={2}
                   className="text-center py-6 text-gray-500"

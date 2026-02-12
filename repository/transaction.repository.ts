@@ -8,9 +8,9 @@ import { Transaction as TransactionDTO } from "@/types/transaction.types";
 
 /** Mapper: Mongo doc → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({
-  id: doc._id.toString(),
+  _id: doc._id.toString(),
   userId: doc.userId.toString(),
- categoryId: doc.categoryId
+  categoryId: doc.categoryId
     ? {
         _id: doc.categoryId._id.toString(),
         name: doc.categoryId.name,

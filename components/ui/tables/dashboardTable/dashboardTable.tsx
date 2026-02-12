@@ -59,7 +59,7 @@ const DashboardTable: React.FC = () => {
                 console.log("CREATED AT:", item.createdAt);
 
                 return (
-                  <TableRow key={item.id}>
+                  <TableRow key={item._id}>
                     <TableCell>{item.title}</TableCell>
                     <TableCell className="text-right font-semibold">
                       <div

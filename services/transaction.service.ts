@@ -130,7 +130,7 @@ export const getDashboardStats = async (userId: string) => {
 
 /** Mapper: Mongo document → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({
-  id: doc._id.toString(),
+  _id: doc._id.toString(),
   userId: doc.userId.toString(),
   categoryId: doc.categoryId._id
     ? doc.categoryId._id.toString()

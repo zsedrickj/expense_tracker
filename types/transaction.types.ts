@@ -4,7 +4,7 @@ import { CategoryRef } from "./category.types";
 
 /** Shared domain model (API response shape) */
 export interface Transaction {
-  id: string;
+  _id: string;
   userId: string;
   categoryId: CategoryRef | null;
   title: string;

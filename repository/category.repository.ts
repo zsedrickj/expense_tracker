@@ -7,7 +7,7 @@ import { Category as CategoryDTO } from "@/types/category.types";
 
 /** Mapper: Mongo doc → DTO */
 const mapCategory = (doc: any): CategoryDTO => ({
-  id: doc._id.toString(),
+  _id: doc._id.toString(),
   userId: doc.userId.toString(),
   name: doc.name,
   type: doc.type, // "income" | "expense"

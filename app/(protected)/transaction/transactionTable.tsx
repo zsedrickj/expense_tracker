@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Search, Edit2, Trash2 } from "lucide-react";
 import {
   Table,
@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table";
 import { useDashboardTable } from "@/hooks/useDashboardTable";
 import { useDebounce } from "@/hooks/useDebounce";
+import EditTransaction from "@/components/ui/editTransaction";
+import { Transaction } from "@/types/transaction.types";
 
 type FilterButton = {
   name: string;
@@ -30,12 +32,14 @@ const TransactionTable: React.FC = () => {
     setSearch,
     filteredTransactions: allTransactions,
   } = useDashboardTable();
-  const [activeFilter, setActiveFilter] = React.useState<string>("all");
+
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const debouncedSearch = useDebounce(search, 500);
 
-  // Compute filtered transactions on render (no useEffect needed)
-  const displayTransactions = React.useMemo(() => {
+  const displayTransactions = useMemo(() => {
     let filtered = allTransactions;
 
     if (debouncedSearch) {
@@ -58,7 +62,6 @@ const TransactionTable: React.FC = () => {
     <div className="flex flex-col gap-4">
       {/* Search & Filters */}
       <div className="w-full rounded-2xl bg-white p-6 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        {/* Search Bar */}
         <div className="relative flex w-full md:flex-1">
           <Search
             size={18}
@@ -73,7 +76,6 @@ const TransactionTable: React.FC = () => {
           />
         </div>
 
-        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2 md:justify-end">
           {filterButtons.map((btn) => (
             <button
@@ -91,23 +93,23 @@ const TransactionTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Transactions Table */}
+      {/* Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-x-auto p-10">
         <Table className="w-full table-auto">
           <TableHeader>
-            <TableRow className="text-left">
-              <TableHead className="min-w-37.5">Title</TableHead>
-              <TableHead className="min-w-30">Category</TableHead>
-              <TableHead className="min-w-30">Date</TableHead>
-              <TableHead className="min-w-25 text-right">Amount</TableHead>
-              <TableHead className="min-w-37.5 text-center">Action</TableHead>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-center">Action</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {displayTransactions.length > 0 ? (
-              displayTransactions.map((item, index) => (
-                <TableRow key={item._id ?? index}>
+              displayTransactions.map((item) => (
+                <TableRow key={item._id}>
                   <TableCell className="font-bold">{item.title}</TableCell>
                   <TableCell>{item.categoryId?.name ?? "-"}</TableCell>
                   <TableCell>
@@ -126,10 +128,14 @@ const TransactionTable: React.FC = () => {
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="flex justify-center gap-2">
-                      <button className="flex items-center gap-1 rounded-xl px-3 py-1 text-black text-sm hover:bg-gray-200 transition">
+                      <button
+                        onClick={() => setSelectedTransaction(item)}
+                        className="rounded-xl p-2 hover:bg-gray-200 transition"
+                      >
                         <Edit2 size={20} />
                       </button>
-                      <button className="flex items-center gap-1 rounded-xl px-3 py-1 hover:bg-gray-200 transition">
+
+                      <button className="rounded-xl p-2 hover:bg-gray-200 transition">
                         <Trash2 size={20} className="text-red-600" />
                       </button>
                     </div>
@@ -137,7 +143,7 @@ const TransactionTable: React.FC = () => {
                 </TableRow>
               ))
             ) : (
-              <TableRow key="empty-row">
+              <TableRow key={"empty row"}>
                 <TableCell
                   colSpan={5}
                   className="text-center py-6 text-gray-500"
@@ -149,6 +155,14 @@ const TransactionTable: React.FC = () => {
           </TableBody>
         </Table>
       </div>
+
+      {/* Render Modal Once */}
+      {selectedTransaction && (
+        <EditTransaction
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
+      )}
     </div>
   );
 };

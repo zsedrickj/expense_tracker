@@ -6,8 +6,6 @@ import { generateToken } from "@/lib/jwt";
 import { createUser, findUserByEmail } from "@/repository/user.repository";
 import { LoginDTO, RegisterDTO } from "@/types/auth.types";
 
-
-
 export async function login({ email, password }: LoginDTO) {
   if (!email || !password) {
     throw { status: 400, message: "Email and password are required" };
@@ -33,7 +31,7 @@ export async function login({ email, password }: LoginDTO) {
   return {
     token,
     user: {
-      id: user._id,
+      userId: user._id,
       email: user.email,
     },
   };
@@ -65,7 +63,7 @@ export async function register({ fullname, email, password }: RegisterDTO) {
   return {
     token,
     user: {
-      id: user._id,
+      userId: user._id,
       fullname: user.fullname,
       email: user.email,
     },

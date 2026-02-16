@@ -18,9 +18,9 @@ async function getUserId(req: NextRequest): Promise<string | null> {
   try {
     // 2️⃣ Verify token and extract payload
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
+      id: string;
     };
-    return payload.userId;
+    return payload.id;
   } catch (err) {
     // Invalid / expired token
     return null;
@@ -60,19 +60,33 @@ export async function GET(req: NextRequest) {
 
 /** PUT /api/transaction/:id */
 export async function PUT(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const id = req.nextUrl.pathname.split("/").pop();
-  if (!id)
-    return NextResponse.json(
-      { error: "Transaction ID required" },
-      { status: 400 },
-    );
-
   try {
+    const userId = await getUserId(req);
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const id = req.nextUrl.pathname.split("/").pop();
+    if (!id)
+      return NextResponse.json(
+        { error: "Transaction ID required" },
+        { status: 400 },
+      );
+
     const body: UpdateTransactionDTO = await req.json();
+
+    // Validate required fields on backend
+    if (
+      !body.title ||
+      !body.categoryId ||
+      !body.amount ||
+      !body.transactionDate
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
+    }
+
     const updated = await updateTransaction(id, body);
 
     if (!updated)
@@ -81,13 +95,16 @@ export async function PUT(req: NextRequest) {
         { status: 404 },
       );
 
-    // Optional: verify that transaction.userId === userId
     if (updated.userId !== userId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     return NextResponse.json(updated, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    console.error("PUT /api/transaction/:id error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to update transaction" },
+      { status: 400 },
+    );
   }
 }
 

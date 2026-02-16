@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Search, Edit2, Trash2 } from "lucide-react";
 import {
   Table,
@@ -15,11 +16,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import EditTransaction from "@/components/ui/editTransaction";
 import { Transaction } from "@/types/transaction.types";
 
-type FilterButton = {
-  name: string;
-  value: string;
-};
-
+type FilterButton = { name: string; value: string };
 const filterButtons: FilterButton[] = [
   { name: "All", value: "all" },
   { name: "Income", value: "income" },
@@ -33,30 +30,42 @@ const TransactionTable: React.FC = () => {
     filteredTransactions: allTransactions,
   } = useDashboardTable();
 
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(allTransactions);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
 
   const debouncedSearch = useDebounce(search, 500);
 
-  const displayTransactions = useMemo(() => {
-    let filtered = allTransactions;
+  // Sync local transactions state whenever dashboard table updates
+  useEffect(() => {
+    setTransactions(allTransactions);
+  }, [allTransactions]);
 
+  // Apply search and filter
+  const displayTransactions = useMemo(() => {
+    let filtered = transactions;
     if (debouncedSearch) {
       const searchLower = debouncedSearch.toLowerCase();
       filtered = filtered.filter((t) =>
         t.title.toLowerCase().includes(searchLower),
       );
     }
-
     if (activeFilter !== "all") {
       filtered = filtered.filter(
         (t) => t.categoryId?.type?.toLowerCase() === activeFilter,
       );
     }
-
     return filtered;
-  }, [allTransactions, debouncedSearch, activeFilter]);
+  }, [transactions, debouncedSearch, activeFilter]);
+
+  // Callback to update local state instantly after editing
+  const handleTransactionUpdate = (updated: Transaction) => {
+    setTransactions((prev) =>
+      prev.map((t) => (t._id === updated._id ? updated : t)),
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -75,7 +84,6 @@ const TransactionTable: React.FC = () => {
             className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-black"
           />
         </div>
-
         <div className="flex flex-wrap gap-2 md:justify-end">
           {filterButtons.map((btn) => (
             <button
@@ -108,8 +116,8 @@ const TransactionTable: React.FC = () => {
 
           <TableBody>
             {displayTransactions.length > 0 ? (
-              displayTransactions.map((item) => (
-                <TableRow key={item._id}>
+              displayTransactions.map((item, index) => (
+                <TableRow key={item._id ?? `transaction-${index}`}>
                   <TableCell className="font-bold">{item.title}</TableCell>
                   <TableCell>{item.categoryId?.name ?? "-"}</TableCell>
                   <TableCell>
@@ -129,12 +137,16 @@ const TransactionTable: React.FC = () => {
                   <TableCell className="text-center">
                     <div className="flex justify-center gap-2">
                       <button
-                        onClick={() => setSelectedTransaction(item)}
+                        onClick={() =>
+                          setSelectedTransaction({
+                            ...item,
+                            _id: (item as any)._id || (item as any).id || "",
+                          })
+                        }
                         className="rounded-xl p-2 hover:bg-gray-200 transition"
                       >
                         <Edit2 size={20} />
                       </button>
-
                       <button className="rounded-xl p-2 hover:bg-gray-200 transition">
                         <Trash2 size={20} className="text-red-600" />
                       </button>
@@ -143,7 +155,7 @@ const TransactionTable: React.FC = () => {
                 </TableRow>
               ))
             ) : (
-              <TableRow key={"empty row"}>
+              <TableRow key="empty row">
                 <TableCell
                   colSpan={5}
                   className="text-center py-6 text-gray-500"
@@ -156,11 +168,12 @@ const TransactionTable: React.FC = () => {
         </Table>
       </div>
 
-      {/* Render Modal Once */}
-      {selectedTransaction && (
+      {/* Edit Modal */}
+      {selectedTransaction?._id && (
         <EditTransaction
           transaction={selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
+          onUpdate={handleTransactionUpdate}
         />
       )}
     </div>

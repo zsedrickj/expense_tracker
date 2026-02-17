@@ -15,6 +15,7 @@ import { useDashboardTable } from "@/hooks/useDashboardTable";
 import { useDebounce } from "@/hooks/useDebounce";
 import EditTransaction from "@/components/ui/editTransaction";
 import { Transaction } from "@/types/transaction.types";
+import { useRefresh } from "@/app/(protected)/RefreshContext"; // 👈
 
 type FilterButton = { name: string; value: string };
 const filterButtons: FilterButton[] = [
@@ -28,9 +29,10 @@ const TransactionTable: React.FC = () => {
     search,
     setSearch,
     filteredTransactions: allTransactions,
-    refetch, // ✅ kunin ang refetch
     loading: tableLoading,
-  } = useDashboardTable();
+  } = useDashboardTable(); // 👈 tinanggal na ang refetch
+
+  const { refreshAll } = useRefresh(); // 👈
 
   const [transactions, setTransactions] =
     useState<Transaction[]>(allTransactions);
@@ -40,12 +42,10 @@ const TransactionTable: React.FC = () => {
 
   const debouncedSearch = useDebounce(search, 500);
 
-  // Sync local transactions state whenever dashboard table updates
   useEffect(() => {
     setTransactions(allTransactions);
   }, [allTransactions]);
 
-  // Apply search and filter
   const displayTransactions = useMemo(() => {
     let filtered = transactions;
     if (debouncedSearch) {
@@ -62,15 +62,13 @@ const TransactionTable: React.FC = () => {
     return filtered;
   }, [transactions, debouncedSearch, activeFilter]);
 
-  // ✅ Callback to update local state instantly + refetch from server
   const handleTransactionUpdate = async (updated: Transaction) => {
-    // Optimistic update (instant UI feedback)
+    // Optimistic update — instant UI feedback
     setTransactions((prev) =>
       prev.map((t) => (t._id === updated._id ? updated : t)),
     );
 
-    // ✅ Refetch from server to ensure data is synced
-    await refetch();
+    refreshAll(); // 👈 re-fetch dashboard + transactions via context
   };
 
   return (

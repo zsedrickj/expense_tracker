@@ -1,6 +1,11 @@
 "use client";
 
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
 interface ModalContextType {
   showAddTransaction: boolean;
@@ -8,21 +13,30 @@ interface ModalContextType {
   closeAddTransaction: () => void;
 }
 
-export const ModalContext = createContext<ModalContextType | undefined>(undefined);
+export const ModalContext = createContext<ModalContextType | undefined>(
+  undefined
+);
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
 
-  const openAddTransaction = () => setShowAddTransaction(true);
-  const closeAddTransaction = () => setShowAddTransaction(false);
+  const openAddTransaction = useCallback(() => {
+    setShowAddTransaction(true);
+  }, []);
+
+  const closeAddTransaction = useCallback(() => {
+    setShowAddTransaction(false);
+  }, []);
 
   return (
     <ModalContext.Provider
-      value={{ showAddTransaction, openAddTransaction, closeAddTransaction }}
+      value={{
+        showAddTransaction,
+        openAddTransaction,
+        closeAddTransaction,
+      }}
     >
       {children}
     </ModalContext.Provider>
   );
 };
-
-// Custom hook para madaling gamitin sa pages

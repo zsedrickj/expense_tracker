@@ -3,23 +3,18 @@ import React from "react";
 import { X } from "lucide-react";
 import { useAddTransaction } from "@/hooks/useAddTransaction";
 import { useCategories } from "@/hooks/useCategories";
+import { useModal } from "@/hooks/useModal";
+import { useRefresh } from "@/app/(protected)/RefreshContext"; // 👈
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
-interface AddTransactionProps {
-  showAddTransaction: boolean;
-  setShowAddTransaction: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const AddTransaction = ({
-  showAddTransaction,
-  setShowAddTransaction,
-}: AddTransactionProps) => {
+const AddTransaction = () => {
+  const { showAddTransaction, closeAddTransaction } = useModal();
+  const { refreshAll } = useRefresh(); // 👈
   const { form, handleChange, submitTransaction, loading, error } =
     useAddTransaction();
-
   const {
     categories,
     loading: categoriesLoading,
@@ -34,7 +29,6 @@ const AddTransaction = ({
     const response = await submitTransaction();
 
     if (response) {
-      // SweetAlert success
       await MySwal.fire({
         icon: "success",
         title: "Transaction Added!",
@@ -42,6 +36,9 @@ const AddTransaction = ({
         timer: 2000,
         showConfirmButton: false,
       });
+
+      refreshAll(); // 👈 refresh dashboard + transactions
+      closeAddTransaction(); // 👈 close modal
     }
   };
 
@@ -52,7 +49,7 @@ const AddTransaction = ({
           <h2 className="text-xl font-bold text-gray-800">Add Transaction</h2>
           <X
             className="cursor-pointer text-gray-500 hover:text-gray-800"
-            onClick={() => setShowAddTransaction(false)}
+            onClick={closeAddTransaction}
           />
         </div>
 

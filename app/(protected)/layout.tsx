@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import NavBar from "@/components/ui/navbar";
 import AddTransaction from "@/components/ui/addTransaction";
 import { ModalProvider } from "./ModalContext";
+import { RefreshProvider } from "./RefreshContext"; // 👈
 import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 
@@ -14,9 +15,11 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ModalProvider>
-      <LayoutContent>{children}</LayoutContent>
-    </ModalProvider>
+    <RefreshProvider>        {/* 👈 i-wrap ang ModalProvider */}
+      <ModalProvider>
+        <LayoutContent>{children}</LayoutContent>
+      </ModalProvider>
+    </RefreshProvider>
   );
 }
 
@@ -26,28 +29,23 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const isVerified = useAuthGuard(); // ✅ checks token & authentication
+  const isVerified = useAuthGuard();
 
-  // ✅ Redirect to lastPage or /dashboard if user is logged in
   useEffect(() => {
     if (isVerified) {
       const lastPage = localStorage.getItem("lastPage") || "/dashboard";
-
-      // redirect only if current pathname is "/" (root) or "/auth/login"
       if (pathname === "/" || pathname.startsWith("/auth/login")) {
         router.replace(lastPage);
       }
     }
   }, [isVerified, pathname, router]);
 
-  // ✅ Save current page to localStorage on every path change after verified
   useEffect(() => {
     if (isVerified && pathname && !pathname.startsWith("/auth")) {
       localStorage.setItem("lastPage", pathname);
     }
   }, [isVerified, pathname]);
 
-  // ❌ Show loader while auth check is in progress
   if (isVerified === null) return <div>Loading...</div>;
 
   return (
@@ -62,10 +60,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         <div className="p-5 pt-20 font-sans md:px-20">{children}</div>
 
         {showAddTransaction && (
-          <AddTransaction
-            showAddTransaction={showAddTransaction}
-            setShowAddTransaction={closeAddTransaction}
-          />
+          <AddTransaction /> // 👈 walang props na kailangan
         )}
       </div>
     </div>

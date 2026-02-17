@@ -28,6 +28,8 @@ const TransactionTable: React.FC = () => {
     search,
     setSearch,
     filteredTransactions: allTransactions,
+    refetch, // ✅ kunin ang refetch
+    loading: tableLoading,
   } = useDashboardTable();
 
   const [transactions, setTransactions] =
@@ -60,11 +62,15 @@ const TransactionTable: React.FC = () => {
     return filtered;
   }, [transactions, debouncedSearch, activeFilter]);
 
-  // Callback to update local state instantly after editing
-  const handleTransactionUpdate = (updated: Transaction) => {
+  // ✅ Callback to update local state instantly + refetch from server
+  const handleTransactionUpdate = async (updated: Transaction) => {
+    // Optimistic update (instant UI feedback)
     setTransactions((prev) =>
       prev.map((t) => (t._id === updated._id ? updated : t)),
     );
+
+    // ✅ Refetch from server to ensure data is synced
+    await refetch();
   };
 
   return (
@@ -103,6 +109,11 @@ const TransactionTable: React.FC = () => {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-x-auto p-10">
+        {tableLoading && (
+          <div className="text-center py-4 text-gray-500">
+            Loading transactions...
+          </div>
+        )}
         <Table className="w-full table-auto">
           <TableHeader>
             <TableRow>

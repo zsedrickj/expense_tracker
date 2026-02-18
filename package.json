@@ -20,6 +20,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-router-dom": "^7.13.0",
+    "recharts": "^3.7.0",
     "sweetalert2": "^11.26.18",
     "sweetalert2-react-content": "^5.1.1",
     "tailwind-merge": "^3.4.0"
@@ -32,6 +33,7 @@
     "@types/node": "^20.19.30",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/recharts": "^1.8.29",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",

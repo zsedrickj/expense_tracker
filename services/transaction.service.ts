@@ -128,6 +128,40 @@ export const getDashboardStats = async (userId: string) => {
   ];
 };
 
+export const getMonthlyTotals = async (userId: string) => {
+  const transactions = await fetchTransactionsForDashboard(userId);
+
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  const monthlyMap: Record<number, { income: number; expense: number }> = {};
+
+  // Initialize months
+  for (let i = 0; i < 12; i++) {
+    monthlyMap[i] = { income: 0, expense: 0 };
+  }
+
+  // Compute totals
+  transactions.forEach((tx: any) => {
+    const month = new Date(tx.transactionDate).getMonth();
+
+    if (tx.categoryId?.type === "income") {
+      monthlyMap[month].income += tx.amount;
+    } else if (tx.categoryId?.type === "expense") {
+      monthlyMap[month].expense += tx.amount;
+    }
+  });
+
+  // Convert to ordered array
+  return months.map((monthName, index) => ({
+    month: monthName,
+    income: monthlyMap[index].income,
+    expense: monthlyMap[index].expense,
+  }));
+};
+
 /** Mapper: Mongo document → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({
   _id: doc._id.toString(),

@@ -13,11 +13,14 @@ import {
 } from "@/components/ui/table";
 import { useDashboardTable } from "@/hooks/useDashboardTable";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useDeleteTransaction } from "@/hooks/useDeleteTransaction"; // ✅
 import EditTransaction from "@/components/ui/editTransaction";
 import { Transaction } from "@/types/transaction.types";
-import { useRefresh } from "@/app/(protected)/RefreshContext"; // 👈
+import { useRefresh } from "@/app/(protected)/RefreshContext";
+import Swal from "sweetalert2"; // ✅ SweetAlert2
 
 type FilterButton = { name: string; value: string };
+
 const filterButtons: FilterButton[] = [
   { name: "All", value: "all" },
   { name: "Income", value: "income" },
@@ -30,9 +33,11 @@ const TransactionTable: React.FC = () => {
     setSearch,
     filteredTransactions: allTransactions,
     loading: tableLoading,
-  } = useDashboardTable(); // 👈 tinanggal na ang refetch
+  } = useDashboardTable();
 
-  const { refreshAll } = useRefresh(); // 👈
+  const { refreshAll } = useRefresh();
+  const { handleDeleteTransaction, loading: deleteLoading } =
+    useDeleteTransaction();
 
   const [transactions, setTransactions] =
     useState<Transaction[]>(allTransactions);
@@ -48,27 +53,71 @@ const TransactionTable: React.FC = () => {
 
   const displayTransactions = useMemo(() => {
     let filtered = transactions;
+
     if (debouncedSearch) {
       const searchLower = debouncedSearch.toLowerCase();
       filtered = filtered.filter((t) =>
         t.title.toLowerCase().includes(searchLower),
       );
     }
+
     if (activeFilter !== "all") {
       filtered = filtered.filter(
         (t) => t.categoryId?.type?.toLowerCase() === activeFilter,
       );
     }
+
     return filtered;
   }, [transactions, debouncedSearch, activeFilter]);
 
   const handleTransactionUpdate = async (updated: Transaction) => {
-    // Optimistic update — instant UI feedback
     setTransactions((prev) =>
       prev.map((t) => (t._id === updated._id ? updated : t)),
     );
 
-    refreshAll(); // 👈 re-fetch dashboard + transactions via context
+    refreshAll();
+  };
+
+  // ✅ DELETE HANDLER WITH SWEETALERT
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This transaction will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Optimistic UI update
+        setTransactions((prev) => prev.filter((t) => t._id !== id));
+
+        await handleDeleteTransaction(id);
+
+        refreshAll();
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Transaction has been deleted.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Delete failed:", error);
+
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to delete transaction.",
+          icon: "error",
+        });
+
+        refreshAll(); // fallback re-fetch
+      }
+    }
   };
 
   return (
@@ -88,6 +137,7 @@ const TransactionTable: React.FC = () => {
             className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 outline-none focus:border-black"
           />
         </div>
+
         <div className="flex flex-wrap gap-2 md:justify-end">
           {filterButtons.map((btn) => (
             <button
@@ -112,6 +162,7 @@ const TransactionTable: React.FC = () => {
             Loading transactions...
           </div>
         )}
+
         <Table className="w-full table-auto">
           <TableHeader>
             <TableRow>
@@ -145,6 +196,7 @@ const TransactionTable: React.FC = () => {
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="flex justify-center gap-2">
+                      {/* EDIT */}
                       <button
                         onClick={() =>
                           setSelectedTransaction({
@@ -156,7 +208,17 @@ const TransactionTable: React.FC = () => {
                       >
                         <Edit2 size={20} />
                       </button>
-                      <button className="rounded-xl p-2 hover:bg-gray-200 transition">
+
+                      {/* DELETE */}
+                      <button
+                        onClick={() =>
+                          handleDelete(
+                            (item as any)._id || (item as any).id || "",
+                          )
+                        }
+                        disabled={deleteLoading}
+                        className="rounded-xl p-2 hover:bg-gray-200 transition disabled:opacity-50"
+                      >
                         <Trash2 size={20} className="text-red-600" />
                       </button>
                     </div>

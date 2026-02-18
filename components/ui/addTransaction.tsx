@@ -12,7 +12,7 @@ const MySwal = withReactContent(Swal);
 
 const AddTransaction = () => {
   const { showAddTransaction, closeAddTransaction } = useModal();
-  const { refreshAll } = useRefresh(); // 👈
+  const { refreshAll } = useRefresh();
   const { form, handleChange, submitTransaction, loading, error } =
     useAddTransaction();
   const {

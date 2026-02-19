@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { TrendingUp } from "lucide-react";
@@ -7,6 +8,8 @@ import {
   CartesianGrid,
   XAxis,
   ResponsiveContainer,
+  Tooltip,
+  TooltipProps,
 } from "recharts";
 
 import {
@@ -19,7 +22,6 @@ import {
 } from "@/components/ui/card";
 import {
   ChartContainer,
-  ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
@@ -63,8 +65,9 @@ export function ChartBarMultiple() {
   return (
     <Card className="flex flex-col space-y-6">
       <CardHeader>
-        <CardTitle>Income vs Expenses</CardTitle>
-        <CardDescription>Monthly Financial Overview</CardDescription>
+        <CardTitle className="text-[20px] ">
+          Monthly Financial Overview
+        </CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -79,10 +82,28 @@ export function ChartBarMultiple() {
                 axisLine={false}
                 tickFormatter={(value) => value.slice(0, 3)}
               />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="dashed" />}
+
+              {/* Custom Tooltip */}
+              <Tooltip
+                cursor={{ fill: "#e5e7eb" }}
+                content={(props: any) => {
+                  const { active, payload, label } = props;
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-gray-200 p-2 rounded shadow">
+                        <p className="font-semibold">{label}</p>
+                        {payload.map((p: any) => (
+                          <p key={p.dataKey} className="text-sm">
+                            {p.name}: {p.value}
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
               />
+
               <Bar
                 dataKey="income"
                 fill={chartConfig.income.color}

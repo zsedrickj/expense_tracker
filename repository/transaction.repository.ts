@@ -5,6 +5,7 @@ import "server-only";
 import DbConnection from "@/lib/mongodb";
 import TransactionModel from "@/models/transaction";
 import { Transaction as TransactionDTO } from "@/types/transaction.types";
+import mongoose from "mongoose";
 
 /** Mapper: Mongo doc → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({
@@ -73,4 +74,39 @@ export async function fetchTransactionsForDashboard(userId: string) {
   await DbConnection();
   // Populate only category type for aggregation
   return TransactionModel.find({ userId }).populate("categoryId", "type");
+}
+
+export async function getExpenseByCategoryRepo(userId: string) {
+  await DbConnection();
+
+  const result = await TransactionModel.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    { $unwind: "$category" },
+    {
+      $match: {
+        "category.type": "expense",
+      },
+    },
+    {
+      $group: {
+        _id: "$category.name",
+        total: { $sum: "$amount" },
+      },
+    },
+    { $sort: { total: -1 } },
+  ]);
+
+  return result;
 }

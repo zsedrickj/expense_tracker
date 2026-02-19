@@ -7,7 +7,10 @@ import {
   UpdateTransactionDTO,
   Transaction as TransactionDTO,
 } from "@/types/transaction.types"; // TypeScript type
-import { fetchTransactionsForDashboard } from "@/repository/transaction.repository";
+import {
+  fetchTransactionsForDashboard,
+  getExpenseByCategoryRepo,
+} from "@/repository/transaction.repository";
 
 /** Create a new transaction */
 export const createTransaction = async (
@@ -132,8 +135,18 @@ export const getMonthlyTotals = async (userId: string) => {
   const transactions = await fetchTransactionsForDashboard(userId);
 
   const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const monthlyMap: Record<number, { income: number; expense: number }> = {};
@@ -160,6 +173,42 @@ export const getMonthlyTotals = async (userId: string) => {
     income: monthlyMap[index].income,
     expense: monthlyMap[index].expense,
   }));
+};
+
+export const getExpenseByCategory = async (userId: string) => {
+  const result = await getExpenseByCategoryRepo(userId);
+
+  const totalExpense = result.reduce((sum, item) => sum + item.total, 0);
+
+  if (!totalExpense) {
+    return result.map((item) => ({
+      name: item._id,
+      value: item.total,
+      percent: 0,
+    }));
+  }
+
+  // Normalize percentages so total = 100%
+  let accumulatedPercent = 0;
+  const pieData = result.map((item, index) => {
+    let percent: number;
+
+    if (index === result.length - 1) {
+      // Last item gets remaining percent to ensure total = 100%
+      percent = 100 - accumulatedPercent;
+    } else {
+      percent = Math.round((item.total / totalExpense) * 100);
+      accumulatedPercent += percent;
+    }
+
+    return {
+      name: item._id,
+      value: item.total,
+      percent,
+    };
+  });
+
+  return pieData;
 };
 
 /** Mapper: Mongo document → DTO */

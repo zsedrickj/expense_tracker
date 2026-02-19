@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMonthlyTotals } from "@/services/transaction.service";
 import jwt from "jsonwebtoken";
+import { getUserId } from "../../route";
 
-async function getUserId(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
-
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
-    return payload.id;
-  } catch {
-    return null;
-  }
-}
 
 export async function GET(req: NextRequest) {
   const userId = await getUserId(req);

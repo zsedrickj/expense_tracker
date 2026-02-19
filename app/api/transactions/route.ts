@@ -9,7 +9,7 @@ import { CreateTransactionDTO } from "@/types/transaction.types";
 import jwt from "jsonwebtoken";
 
 /** Helper: get userId from JWT cookie */
-async function getUserId(req: NextRequest) {
+export async function getUserId(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   if (!token) return null;
 

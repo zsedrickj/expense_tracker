@@ -1,9 +1,19 @@
 // src/app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { login } from "@/services/auth.service";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
+
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Try again later." },
+        { status: 429 },
+      );
+    }
+
     const body = await request.json();
     const result = await login(body);
 

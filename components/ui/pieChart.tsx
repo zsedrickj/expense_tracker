@@ -26,17 +26,20 @@ export function ChartPieLabel() {
   // Show loading or error states
   if (loading) return <div className="p-6">Loading chart...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
-  if (!data || data.length === 0)
-    return <div className="p-6 text-gray-500">No expense data found</div>;
 
-  // Generate ChartConfig dynamically for colors
-  const chartConfig: ChartConfig = data.reduce((acc, item, index) => {
-    acc[item.name] = {
-      label: item.name,
-      color: `var(--chart-${(index % 5) + 1})`,
-    };
-    return acc;
-  }, {} as ChartConfig);
+  // Generate ChartConfig dynamically for colors, or placeholder if no data
+  const chartConfig: ChartConfig =
+    data && data.length > 0
+      ? data.reduce((acc, item, index) => {
+          acc[item.name] = {
+            label: item.name,
+            color: `var(--chart-${(index % 5) + 1})`,
+          };
+          return acc;
+        }, {} as ChartConfig)
+      : {
+          placeholder: { label: "No data", color: "var(--muted-foreground)" },
+        };
 
   return (
     <Card className="flex flex-col w-full md:w-[45%]">
@@ -45,28 +48,34 @@ export function ChartPieLabel() {
       </CardHeader>
 
       <CardContent className="flex-1 pb-0">
-        <div className="mx-auto aspect-square max-h-100">
-          <ChartContainer config={chartConfig}>
-            <PieChart width={"100%"} height={"100%"}>
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                label={({ name, index }) =>
-                  `${name}: ${data[index]?.percent ?? 0}%`
-                }
-                outerRadius={110}
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={entry.name}
-                    fill={`var(--chart-${(index % 5) + 1})`}
-                  />
-                ))}
-              </Pie>
-            </PieChart>
-          </ChartContainer>
+        <div className="mx-auto aspect-square max-h-100 w-full relative">
+          {data && data.length > 0 ? (
+            <ChartContainer config={chartConfig}>
+              <PieChart width="100%" height="100%" className="w-full h-full">
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Pie
+                  data={data}
+                  dataKey="value"
+                  nameKey="name"
+                  label={({ name, index }) =>
+                    `${name}: ${data[index]?.percent ?? 0}%`
+                  }
+                  outerRadius={110}
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={entry.name}
+                      fill={`var(--chart-${(index % 5) + 1})`}
+                    />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
+              No expense data found
+            </div>
+          )}
         </div>
       </CardContent>
 

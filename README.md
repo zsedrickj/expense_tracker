@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💰 Expense Tracker App
 
-## Getting Started
+A full-stack web application built with **Next.js** to help users track their daily expenses, categorize transactions, and visualize their spending habits through interactive charts.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* **User Authentication:** Secure login and signup functionality using JWT.
+* **Dashboard & Analytics:** Visual representation of expenses using horizontal and bar charts.
+* **Transaction Management:** Add, view, and organize daily transactions.
+* **Categories:** Group transactions by categories for better tracking.
+* **Search Functionality:** Easily search through past transactions.
+* **Rate Limiting:** Added security on API routes to prevent brute-force attacks.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **Framework:** [Next.js](https://nextjs.org/) (App Router)
+* **Language:** TypeScript
+* **Database:** [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+* **Styling:** Tailwind CSS / Radix UI (via Shadcn/ui)
+* **Architecture:** Clean Architecture principles (Separation of Usecases, Services, and Repositories)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📁 Project Structure & Workflow
 
-To learn more about Next.js, take a look at the following resources:
+This project follows a **Layered Architecture** to ensure the code is scalable and easy to test:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+* `app/` - Next.js App Router (Pages, Layouts, and API Routes).
+* `components/ui/` - Reusable UI components (Atomic design).
+* `usecases/` - **Frontend API Handlers.** Contains the logic for fetching data from internal APIs (e.g., `fetchMonthlyReport`).
+* `services/` - **Backend Business Logic.** Processes data before saving or returning it.
+* `repository/` - **Data Access Layer.** The only part that performs CRUD operations on **MongoDB**.
+* `models/` - TypeScript Interfaces and Data Schemas.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

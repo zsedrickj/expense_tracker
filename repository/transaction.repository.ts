@@ -110,3 +110,45 @@ export async function getExpenseByCategoryRepo(userId: string) {
 
   return result;
 }
+
+
+export async function getCategoryByTransactionRepo(userId: string) {
+  await DbConnection();
+
+  const result = await TransactionModel.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    { $unwind: "$category" },
+    {
+      $group: {
+        _id: "$category._id",
+        name: { $first: "$category.name" },
+        type: { $first: "$category.type" }, // optional kung gusto mo rin
+        totalAmount: { $sum: "$amount" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        categoryId: "$_id",
+        name: 1,
+        type: 1,
+        totalAmount: 1,
+      },
+    },
+    { $sort: { totalAmount: -1 } },
+  ]);
+
+  return result;
+}

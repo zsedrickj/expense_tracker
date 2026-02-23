@@ -9,6 +9,7 @@ import {
 } from "@/types/transaction.types"; // TypeScript type
 import {
   fetchTransactionsForDashboard,
+  getCategoryByTransactionRepo,
   getExpenseByCategoryRepo,
 } from "@/repository/transaction.repository";
 
@@ -210,6 +211,48 @@ export const getExpenseByCategory = async (userId: string) => {
 
   return pieData;
 };
+
+export const getCategoryByTransaction = async (userId: string) => {
+  const result = await getCategoryByTransactionRepo(userId);
+
+  const totalAmount = result.reduce(
+    (sum: number, item: any) => sum + item.totalAmount,
+    0,
+  );
+
+  if (!totalAmount) {
+    return result.map((item: any) => ({
+      name: item.name,
+      type: item.type,
+      value: item.totalAmount,
+      percent: 0,
+    }));
+  }
+
+  let accumulatedPercent = 0;
+
+  const chartData = result.map((item: any, index: number) => {
+    let percent: number;
+
+    if (index === result.length - 1) {
+      percent = 100 - accumulatedPercent;
+    } else {
+      percent = Math.round((item.totalAmount / totalAmount) * 100);
+      accumulatedPercent += percent;
+    }
+
+    return {
+      name: item.name,
+      type: item.type,
+      value: item.totalAmount,
+      percent,
+    };
+  });
+
+  return chartData;
+};
+
+
 
 /** Mapper: Mongo document → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({

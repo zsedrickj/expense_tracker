@@ -16,30 +16,6 @@ const COLORS = [
 export function ChartBarLabelCustom() {
   const { data, loading, error } = useHorizontalChart();
 
-  // 🔥 Top 6 + Other logic
-  const processedData = (() => {
-    if (!data || data.length <= 7) return data;
-
-    const sorted = [...data].sort((a, b) => b.value - a.value);
-
-    const topSix = sorted.slice(0, 6);
-    const remaining = sorted.slice(6);
-
-    const otherTotal = remaining.reduce((sum, item) => sum + item.value, 0);
-
-    const otherPercent = remaining.reduce((sum, item) => sum + item.percent, 0);
-
-    return [
-      ...topSix,
-      {
-        name: "Other",
-        type: "mixed",
-        value: otherTotal,
-        percent: otherPercent,
-      },
-    ];
-  })();
-
   return (
     <div className="w-full md:w-[50%]">
       <Card className="h-full">
@@ -55,10 +31,19 @@ export function ChartBarLabelCustom() {
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
+            {!loading && !error && data.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No data available.
+              </p>
+            )}
+
             {!loading &&
               !error &&
-              processedData?.map((item, index) => {
-                const color = COLORS[index % COLORS.length];
+              data.map((item, index) => {
+                const color =
+                  item.name === "Other"
+                    ? "var(--muted-foreground)"
+                    : COLORS[index % COLORS.length];
 
                 return (
                   <div key={item.name} className="flex flex-col gap-1.5">
@@ -85,7 +70,7 @@ export function ChartBarLabelCustom() {
                     {/* Progress bar */}
                     <div className="h-1.5 w-full rounded-full bg-muted">
                       <div
-                        className="h-1.5 rounded-full"
+                        className="h-1.5 rounded-full transition-all duration-500"
                         style={{
                           width: `${item.percent}%`,
                           backgroundColor: color,

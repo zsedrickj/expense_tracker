@@ -215,26 +215,48 @@ export const getExpenseByCategory = async (userId: string) => {
 export const getCategoryByTransaction = async (userId: string) => {
   const result = await getCategoryByTransactionRepo(userId);
 
-  const totalAmount = result.reduce(
+  if (!result || result.length === 0) return [];
+
+  // Sort descending by totalAmount
+  const sorted = [...result].sort(
+    (a: any, b: any) => b.totalAmount - a.totalAmount,
+  );
+
+  // 🔥 Top 6 + Other logic
+  let groupedData = sorted;
+
+  if (sorted.length >= 7) {
+    const topSix = sorted.slice(0, 6);
+    const remaining = sorted.slice(6);
+
+    const otherTotal = remaining.reduce(
+      (sum: number, item: any) => sum + item.totalAmount,
+      0,
+    );
+
+    groupedData = [
+      ...topSix,
+      {
+        name: "Other",
+        type: "mixed",
+        totalAmount: otherTotal,
+      },
+    ];
+  }
+
+  // Recalculate total AFTER grouping
+  const totalAmount = groupedData.reduce(
     (sum: number, item: any) => sum + item.totalAmount,
     0,
   );
 
-  if (!totalAmount) {
-    return result.map((item: any) => ({
-      name: item.name,
-      type: item.type,
-      value: item.totalAmount,
-      percent: 0,
-    }));
-  }
-
+  // 🔥 Recalculate percentages cleanly
   let accumulatedPercent = 0;
 
-  const chartData = result.map((item: any, index: number) => {
+  const chartData = groupedData.map((item: any, index: number) => {
     let percent: number;
 
-    if (index === result.length - 1) {
+    if (index === groupedData.length - 1) {
       percent = 100 - accumulatedPercent;
     } else {
       percent = Math.round((item.totalAmount / totalAmount) * 100);
@@ -251,8 +273,6 @@ export const getCategoryByTransaction = async (userId: string) => {
 
   return chartData;
 };
-
-
 
 /** Mapper: Mongo document → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({

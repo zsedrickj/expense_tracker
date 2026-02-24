@@ -4,8 +4,9 @@ import React, { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import NavBar from "@/components/ui/navbar";
 import AddTransaction from "@/components/ui/addTransaction";
+import AddCategory from "@/components/ui/addCategory"; // ✅ IMPORT ADDED
 import { ModalProvider } from "./ModalContext";
-import { RefreshProvider } from "./RefreshContext"; // 👈
+import { RefreshProvider } from "./RefreshContext";
 import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 
@@ -15,7 +16,7 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RefreshProvider>        {/* 👈 i-wrap ang ModalProvider */}
+    <RefreshProvider>
       <ModalProvider>
         <LayoutContent>{children}</LayoutContent>
       </ModalProvider>
@@ -25,10 +26,12 @@ export default function ProtectedLayout({
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const [isClosed, setIsClosed] = React.useState(true);
-  const { showAddTransaction, closeAddTransaction } = useModal();
+
+  // ✅ UPDATED: added showAddCategory
+  const { showAddTransaction, showAddCategory } = useModal();
+
   const pathname = usePathname();
   const router = useRouter();
-
   const isVerified = useAuthGuard();
 
   useEffect(() => {
@@ -59,9 +62,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
         <div className="p-5 pt-20 font-sans md:px-20">{children}</div>
 
-        {showAddTransaction && (
-          <AddTransaction /> // 👈 walang props na kailangan
-        )}
+        {/* ✅ MODALS */}
+        {showAddTransaction && <AddTransaction />}
+        {showAddCategory && <AddCategory />}
       </div>
     </div>
   );

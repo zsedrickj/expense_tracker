@@ -2,7 +2,8 @@
 
 import React from "react";
 import AddButton from "@/components/ui/addButton";
-import CategoryCard from "@/components/ui/categoryCard"; // adjust path as needed
+import CategoryCard from "@/components/ui/categoryCard";
+import { useModal } from "@/hooks/useModal";
 
 // ── dummy data ──────────────────────────────────────────────────────────────
 const incomeCategories = [
@@ -23,6 +24,8 @@ const expenseCategories = [
 // ────────────────────────────────────────────────────────────────────────────
 
 const CategoryPage = () => {
+  const { openAddCategory } = useModal(); // 👈 connect sa modal
+
   const handleEdit = (id: number) => console.log("Edit", id);
   const handleDelete = (id: number) => console.log("Delete", id);
 
@@ -31,10 +34,19 @@ const CategoryPage = () => {
       {/* ── Header ── */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-800">Categories</h1>
-          <p className="text-gray-500">Manage your transaction categories</p>
+          <h1 className="text-3xl font-semibold text-gray-800">
+            Categories
+          </h1>
+          <p className="text-gray-500">
+            Manage your transaction categories
+          </p>
         </div>
-        <AddButton name="Add Category" />
+
+        {/* 👇 THIS OPENS MODAL */}
+        <AddButton
+          name="Add Category"
+          onClick={openAddCategory}
+        />
       </div>
 
       {/* ── Income Categories ── */}

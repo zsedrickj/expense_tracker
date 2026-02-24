@@ -50,7 +50,7 @@ const NavBar: React.FC<NavBarProps> = ({ isClosed, setIsClosed }) => {
       id: "categories",
       label: "Categories",
       icon: Folder,
-      href: "/categories",
+      href: "/category",
     },
     { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
   ];

@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const percentColors = ["text-emerald-500", "text-rose-500", "text-sky-500"];
 
   return (
-    <div className="flex-1 transition-all duration-300 overflow-x-auto">
+    <div className="flex-1 transition-all duration-300 overflow-x-auto m-auto max-w-350">
       {/* Header */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>

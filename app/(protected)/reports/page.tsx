@@ -5,7 +5,7 @@ import React from "react";
 
 const ReportPage = () => {
   return (
-    <div className="flex-1  transition-all duration-300 overflow-x-auto mb-10">
+    <div className="flex-1  transition-all duration-300 overflow-x-auto mb-10 m-auto max-w-350">
       {/* Header */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
@@ -18,7 +18,7 @@ const ReportPage = () => {
 
       <div className="flex flex-col w-full gap-y-10">
         <ChartBarMultiple />
-        <div className="flex flex-col w-auto justify-between md:flex-row md:gap-10">
+        <div className="flex flex-col w-auto justify-between gap-10  md:flex-row ">
           <ChartPieLabel />
           <ChartBarLabelCustom />
         </div>

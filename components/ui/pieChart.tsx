@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { Pie, PieChart, Cell } from "recharts";
+import { Pie, PieChart, Cell, ResponsiveContainer } from "recharts";
 
 import {
   Card,
@@ -23,11 +23,9 @@ import { usePieChart } from "@/hooks/usePieChart";
 export function ChartPieLabel() {
   const { data, loading, error } = usePieChart();
 
-  // Show loading or error states
   if (loading) return <div className="p-6">Loading chart...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
-  // Generate ChartConfig dynamically for colors, or placeholder if no data
   const chartConfig: ChartConfig =
     data && data.length > 0
       ? data.reduce((acc, item, index) => {
@@ -48,31 +46,34 @@ export function ChartPieLabel() {
       </CardHeader>
 
       <CardContent className="flex-1 pb-0">
-        <div className="mx-auto aspect-square max-h-100 w-full relative">
+        <div className="w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
           {data && data.length > 0 ? (
             <ChartContainer config={chartConfig}>
-              <PieChart width="100%" height="100%" className="w-full h-full">
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Pie
-                  data={data}
-                  dataKey="value"
-                  nameKey="name"
-                  label={({ name, index }) =>
-                    `${name}: ${data[index]?.percent ?? 0}%`
-                  }
-                  outerRadius={110}
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={entry.name}
-                      fill={`var(--chart-${(index % 5) + 1})`}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+
+                  <Pie
+                    data={data}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius="80%"
+                    label={({ name, index }) =>
+                      `${name}: ${data[index]?.percent ?? 0}%`
+                    }
+                  >
+                    {data.map((entry, index) => (
+                      <Cell
+                        key={entry.name}
+                        fill={`var(--chart-${(index % 5) + 1})`}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </ChartContainer>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
+            <div className="flex items-center justify-center h-full text-gray-500 text-sm">
               No expense data found
             </div>
           )}

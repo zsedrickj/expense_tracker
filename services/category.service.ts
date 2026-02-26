@@ -31,9 +31,15 @@ export const createCategory = async (
 export const getUserCategories = async (
   userId: string,
 ): Promise<CategoryDTO[]> => {
-  return getUserCategoriesRepo(userId);
-};
+  const categories = await getUserCategoriesRepo(userId);
 
+  // ✅ Sort by createdAt descending (latest first)
+  return categories.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA; // latest first
+  });
+};
 /** Get single category by id */
 export const getCategoryById = async (
   id: string,

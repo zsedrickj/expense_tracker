@@ -1,30 +1,40 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AddButton from "@/components/ui/addButton";
 import CategoryCard from "@/components/ui/categoryCard";
+import EditCategory from "@/components/ui/editCategory";
 import { useModal } from "@/hooks/useModal";
 import { useCategories } from "@/hooks/useCategories";
 import { Category } from "@/types/category.types";
 import { useRefresh } from "../RefreshContext";
+import Swal from "sweetalert2";
+import { useDeleteCategory } from "@/hooks/useDeleteCategory";
 
 const CategoryPage = () => {
   const { openAddCategory } = useModal();
+
   const { categories, loading, error, unauthorized, fetchCategories } =
     useCategories();
   const { dashboardKey } = useRefresh();
-
-  const handleEdit = (id: string) => console.log("Edit", id);
-  const handleDelete = (id: string) => console.log("Delete", id);
-
+  const [selectedCategory, setSelectedCategory] = useState<
+    Category | undefined
+  >(undefined);
+  const [editing, setEditing] = useState(false);
+  const {
+    handleDeleteCategory,
+    loading: deleting,
+    error: deleteError,
+  } = useDeleteCategory();
   useEffect(() => {
-    fetchCategories(); // re-fetch categories when key changes
+    fetchCategories();
   }, [dashboardKey, fetchCategories]);
 
-  // Separate categories by type
   const incomeCategories = categories.filter(
     (cat: Category) => cat.type === "income",
   );
+
   const expenseCategories = categories.filter(
     (cat: Category) => cat.type === "expense",
   );
@@ -32,6 +42,40 @@ const CategoryPage = () => {
   if (unauthorized) return <p className="text-red-500">Unauthorized access.</p>;
   if (loading) return <p className="text-gray-500">Loading categories...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
+
+  const handleDelete = async (_id: any) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the category.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      const success = await handleDeleteCategory(_id); // ✅ use the hook's function
+      if (success) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Category has been deleted.",
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+        fetchCategories(); // refresh your list
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: error || "Could not delete the category.",
+        });
+      }
+    }
+  };
 
   return (
     <div className="flex-1 transition-all duration-300 overflow-x-auto mb-10 m-auto max-w-350">
@@ -45,7 +89,7 @@ const CategoryPage = () => {
         <AddButton name="Add Category" onClick={openAddCategory} />
       </div>
 
-      {/* Income Categories */}
+      {/* Income */}
       <section className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
@@ -59,16 +103,19 @@ const CategoryPage = () => {
             <CategoryCard
               key={cat._id}
               name={cat.name}
-              type="Income" // Capitalized for CategoryCard
-              color="#22c55e" // Always green for income
-              onEdit={() => handleEdit(cat._id)}
+              type="Income"
+              color="#22c55e"
+              onEdit={() => {
+                setSelectedCategory(cat); // i-set ang category na ie-edit
+                setEditing(true); // i-show ang EditCategory modal
+              }}
               onDelete={() => handleDelete(cat._id)}
             />
           ))}
         </div>
       </section>
 
-      {/* Expense Categories */}
+      {/* Expense */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
@@ -82,14 +129,25 @@ const CategoryPage = () => {
             <CategoryCard
               key={cat._id}
               name={cat.name}
-              type="Expense" // Capitalized for CategoryCard
-              color="#ef4444" // Always red for expense
-              onEdit={() => handleEdit(cat._id)}
+              type="Expense"
+              color="#ef4444"
+              onEdit={() => {
+                setSelectedCategory(cat); // ✅ important
+                setEditing(true);
+              }}
               onDelete={() => handleDelete(cat._id)}
             />
           ))}
         </div>
       </section>
+
+      {/* ✅ Edit Modal */}
+      {editing && selectedCategory && (
+        <EditCategory
+          category={selectedCategory}
+          onClose={() => setEditing(false)}
+        />
+      )}
     </div>
   );
 };

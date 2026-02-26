@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const iconBgColors = ["bg-emerald-100", "bg-rose-100", "bg-sky-100"];
   const iconColors = ["text-emerald-600", "text-rose-600", "text-sky-600"];
   const percentColors = ["text-emerald-500", "text-rose-500", "text-sky-500"];
-
+  
   return (
     <div className="flex-1 transition-all duration-300 overflow-x-auto m-auto max-w-350">
       {/* Header */}

@@ -17,3 +17,9 @@ export async function createUser(data: {
   await DbConnnection();
   return User.create(data);
 }
+
+export async function getUserBasicInfoById(userId: string) {
+  await DbConnnection();
+
+  return User.findById(userId).select("fullname email").lean();
+}

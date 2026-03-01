@@ -1,29 +1,78 @@
 "use client";
 
 import { useState } from "react";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 export default function ProfileSettings() {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
+  const { user, loading, error, refetch } = useUserInfo();
+
   const [editing, setEditing] = useState(false);
-  const [tempName, setTempName] = useState(name);
-  const [tempEmail, setTempEmail] = useState(email);
+  const [tempName, setTempName] = useState("");
+  const [tempEmail, setTempEmail] = useState("");
+  const [overrideName, setOverrideName] = useState<string | null>(null);
+  const [overrideEmail, setOverrideEmail] = useState<string | null>(null);
+
+  const displayName = overrideName ?? user?.fullname ?? "";
+  const displayEmail = overrideEmail ?? user?.email ?? "";
 
   const handleEdit = () => {
-    setTempName(name);
-    setTempEmail(email);
+    setTempName(displayName);
+    setTempEmail(displayEmail);
     setEditing(true);
   };
 
   const handleSave = () => {
-    setName(tempName);
-    setEmail(tempEmail);
+    setOverrideName(tempName);
+    setOverrideEmail(tempEmail);
     setEditing(false);
   };
 
-  const handleCancel = () => {
-    setEditing(false);
-  };
+  const handleCancel = () => setEditing(false);
+
+  if (loading) {
+    return (
+      <div className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-gray-400 text-sm">
+          <svg
+            className="animate-spin"
+            width="18"
+            height="18"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="3"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+          Loading profile...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full bg-white rounded-2xl border border-red-200 shadow-sm p-6 text-center">
+        <p className="text-sm text-red-500 mb-3">Failed to load profile</p>
+        <button
+          onClick={refetch}
+          className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -49,7 +98,7 @@ export default function ProfileSettings() {
         {/* User Info Row */}
         <div className="flex items-center gap-4 mb-6">
           {/* Avatar */}
-          <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
             <svg
               width="22"
               height="22"
@@ -66,16 +115,16 @@ export default function ProfileSettings() {
           {/* Name & Email */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">
-              {name}
+              {displayName}
             </p>
-            <p className="text-xs text-gray-500 truncate">{email}</p>
+            <p className="text-xs text-gray-500 truncate">{displayEmail}</p>
           </div>
 
           {/* Edit Button */}
           {!editing && (
             <button
               onClick={handleEdit}
-              className="px-4 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
+              className="px-4 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors shrink-0"
             >
               Edit
             </button>
@@ -89,7 +138,7 @@ export default function ProfileSettings() {
           </label>
           <input
             type="text"
-            value={editing ? tempName : name}
+            value={editing ? tempName : displayName}
             onChange={(e) => setTempName(e.target.value)}
             readOnly={!editing}
             className={`w-full px-4 py-2.5 rounded-xl border text-sm text-gray-800 outline-none transition-all ${
@@ -107,7 +156,7 @@ export default function ProfileSettings() {
           </label>
           <input
             type="email"
-            value={editing ? tempEmail : email}
+            value={editing ? tempEmail : displayEmail}
             onChange={(e) => setTempEmail(e.target.value)}
             readOnly={!editing}
             className={`w-full px-4 py-2.5 rounded-xl border text-sm text-gray-800 outline-none transition-all ${

@@ -15,7 +15,10 @@ interface EditCategoryProps {
 const EditCategory = ({ onClose, category }: EditCategoryProps) => {
   // Hook para sa form state
   const { form, handleChange, submitEditCategory, loading, error } =
-    useEditCategory(category._id, { name: category.name });
+    useEditCategory(category._id, {
+      name: category.name,
+      type: category.type,
+    });
   const { refreshAll } = useRefresh();
   const [type, setType] = useState<"income" | "expense">(category.type);
 
@@ -87,8 +90,9 @@ const EditCategory = ({ onClose, category }: EditCategoryProps) => {
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-600">Type</label>
             <select
-              value={type}
-              onChange={handleTypeChange}
+              name="type"
+              value={form.type}
+              onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-600"
             >
               <option value="" disabled>

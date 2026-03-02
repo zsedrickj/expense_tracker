@@ -6,13 +6,31 @@ export interface IUser extends Document {
   password: string;
 }
 
-const UserSchema: Schema = new Schema<IUser>({
-  fullname: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
+const UserSchema: Schema = new Schema<IUser>(
+  {
+    fullname: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true },
+);
 
-// Check if model already exists
+// Explicit index (mas clear sa production)
+UserSchema.index({ email: 1 }, { unique: true });
+
 const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;

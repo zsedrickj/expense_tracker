@@ -6,7 +6,6 @@ const CategorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     name: {
       type: String,
@@ -17,13 +16,18 @@ const CategorySchema = new mongoose.Schema(
       type: String,
       enum: ["income", "expense"],
       required: true,
-      index: true,
     },
   },
   {
     timestamps: true,
   },
 );
+
+// 🔥 Compound index for real usage
+CategorySchema.index({ userId: 1, type: 1 });
+
+// Prevent duplicate category names per user
+CategorySchema.index({ userId: 1, name: 1 }, { unique: true });
 
 export default mongoose.models.Category ||
   mongoose.model("Category", CategorySchema);

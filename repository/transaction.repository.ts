@@ -5,7 +5,7 @@ import "server-only";
 import DbConnection from "@/lib/mongodb";
 import TransactionModel from "@/models/transaction";
 import { Transaction as TransactionDTO } from "@/types/transaction.types";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 /** Mapper: Mongo doc → DTO */
 const mapTransaction = (doc: any): TransactionDTO => ({
@@ -52,17 +52,20 @@ export async function getTransactionById(
   return doc ? mapTransaction(doc) : null;
 }
 
-export async function updateTransaction(
+export const updateTransactionRepo = async (
   id: string,
-  data: any,
-): Promise<TransactionDTO | null> {
+  data: any
+) => {
   await DbConnection();
-  const doc = await TransactionModel.findByIdAndUpdate(id, data, {
-    new: true,
-  }).populate("categoryId", "name type");
-  return doc ? mapTransaction(doc) : null;
-}
 
+  // Optional: validate categoryId if present
+  if (data.categoryId && !Types.ObjectId.isValid(data.categoryId)) {
+    throw new Error("Invalid categoryId");
+  }
+
+  return TransactionModel.findByIdAndUpdate(id, data, { new: true })
+    .populate("categoryId", "name type");
+};
 export async function deleteTransaction(id: string): Promise<boolean> {
   await DbConnection();
   const doc = await TransactionModel.findByIdAndDelete(id);

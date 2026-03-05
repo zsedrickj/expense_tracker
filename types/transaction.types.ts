@@ -21,4 +21,9 @@ export interface CreateTransactionDTO {
   transactionDate: string;
 }
 
-export type UpdateTransactionDTO = Partial<CreateTransactionDTO>;
+export type UpdateTransactionDTO = Partial<{
+  title: string;
+  amount: number;
+  transactionDate: Date;
+  categoryId: string; // optional, only update if provided
+}>;

@@ -11,6 +11,7 @@ import {
   fetchTransactionsForDashboard,
   getCategoryByTransactionRepo,
   getExpenseByCategoryRepo,
+  updateTransactionRepo,
 } from "@/repository/transaction.repository";
 
 /** Create a new transaction */
@@ -64,21 +65,25 @@ export const getTransactionById = async (
   return transaction ? mapTransaction(transaction) : null;
 };
 
-/** Update a transaction */
+
+
 export const updateTransaction = async (
   id: string,
   data: UpdateTransactionDTO,
 ): Promise<TransactionDTO | null> => {
-  // Explicitly destructure to prevent categoryId overwrite
-  const { title, amount, transactionDate } = data;
+  // Build update object dynamically to prevent overwriting
+  const updateData: any = {};
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.amount !== undefined) updateData.amount = data.amount;
+  if (data.transactionDate !== undefined)
+    updateData.transactionDate = data.transactionDate;
+  if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
 
-  const updated = await TransactionModel.findByIdAndUpdate(
-    id,
-    { title, amount, transactionDate },
-    { new: true },
-  ).populate("categoryId", "name type");
+  // Call repository
+  const updatedDoc = await updateTransactionRepo(id, updateData);
 
-  return updated ? mapTransaction(updated) : null;
+  // Map to DTO
+  return updatedDoc ? mapTransaction(updatedDoc) : null;
 };
 
 /** Delete a transaction */

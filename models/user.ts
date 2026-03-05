@@ -16,7 +16,6 @@ const UserSchema: Schema = new Schema<IUser>(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -28,8 +27,7 @@ const UserSchema: Schema = new Schema<IUser>(
   { timestamps: true },
 );
 
-// Explicit index (mas clear sa production)
-UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ email: 1 }, { unique: true }); // explicit lang dito
 
 const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 

@@ -23,3 +23,34 @@ export async function getUserBasicInfoById(userId: string) {
 
   return User.findById(userId).select("fullname email").lean();
 }
+
+export async function updateUserBasicInfo(
+  userId: string,
+  data: { fullname: string; email: string },
+) {
+  await DbConnnection();
+
+  return User.findByIdAndUpdate(
+    userId,
+    {
+      fullname: data.fullname,
+      email: data.email,
+    },
+    { new: true },
+  ).select("fullname email");
+}
+
+export async function updateUserPassword(
+  userId: string,
+  hashedPassword: string,
+) {
+  await DbConnnection();
+
+  return User.findByIdAndUpdate(
+    userId,
+    {
+      password: hashedPassword,
+    },
+    { new: true },
+  );
+}

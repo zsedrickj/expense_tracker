@@ -147,33 +147,18 @@ const Settings = () => {
                   <option>JPY - Japanese Yen</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                  Language
-                </label>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
-                >
-                  <option>English</option>
-                  <option>Filipino</option>
-                  <option>Spanish</option>
-                  <option>Japanese</option>
-                </select>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Dark Mode</p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Enable dark mode theme
+                  </p>
+                </div>
+                <Toggle enabled={darkMode} onChange={setDarkMode} />
               </div>
             </div>
 
             {/* Dark Mode */}
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-gray-800">Dark Mode</p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Enable dark mode theme
-                </p>
-              </div>
-              <Toggle enabled={darkMode} onChange={setDarkMode} />
-            </div>
           </div>
         </SectionCard>
 

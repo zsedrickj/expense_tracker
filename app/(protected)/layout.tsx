@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import NavBar from "@/components/ui/navbar";
 import AddTransaction from "@/components/ui/addTransaction";
-import AddCategory from "@/components/ui/addCategory"; // ✅ IMPORT ADDED
+import AddCategory from "@/components/ui/addCategory";
 import { ModalProvider } from "./ModalContext";
 import { RefreshProvider } from "./RefreshContext";
 import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import Swal from "sweetalert2";
 
 export default function ProtectedLayout({
   children,
@@ -26,14 +27,53 @@ export default function ProtectedLayout({
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const [isClosed, setIsClosed] = React.useState(true);
-
-  // ✅ UPDATED: added showAddCategory
   const { showAddTransaction, showAddCategory } = useModal();
-
   const pathname = usePathname();
   const router = useRouter();
   const isVerified = useAuthGuard();
+  const intervalRef = useRef<number | null>(null);
+  const hasLoggedOutRef = useRef(false); // ✅ prevent multiple SweetAlerts
 
+  // ✅ Poll token every 5s but alert only on actual expiration
+  useEffect(() => {
+    intervalRef.current = window.setInterval(async () => {
+      try {
+        const res = await fetch("/api/user/verify", {
+          credentials: "include",
+        });
+
+        if (res.status === 401) {
+          if (!hasLoggedOutRef.current) {
+            hasLoggedOutRef.current = true;
+            clearInterval(intervalRef.current!);
+            intervalRef.current = null;
+
+            await Swal.fire({
+              icon: "warning",
+              title: "Session Expired",
+              text: "Your login session has expired. Please log in again.",
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+            });
+
+            router.replace("/auth/login");
+          }
+        }
+      } catch (err) {
+        console.error("Error checking token:", err);
+      }
+    }, 5000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [router]);
+
+  // ✅ REMEMBER LAST PAGE
   useEffect(() => {
     if (isVerified) {
       const lastPage = localStorage.getItem("lastPage") || "/dashboard";
@@ -62,7 +102,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
         <div className="p-5 pt-20 font-sans md:px-20">{children}</div>
 
-        {/* ✅ MODALS */}
         {showAddTransaction && <AddTransaction />}
         {showAddCategory && <AddCategory />}
       </div>

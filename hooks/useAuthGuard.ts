@@ -1,26 +1,37 @@
-// hooks/useAuthGuard.ts
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export function useAuthGuard() {
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState<boolean | null>(null); // null = loading
+  const [isVerified, setIsVerified] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch("/api/user/verify");
+        const res = await fetch("/api/user/verify", {
+          credentials: "include", // important kung cookie auth
+        });
+
+        // handle expired or invalid token
+        if (res.status === 401) {
+          setIsVerified(false);
+          router.replace("/");
+          return;
+        }
+
         const data = await res.json();
 
         if (!data.authenticated) {
-          router.replace("/"); // redirect to login kung di authenticated
+          setIsVerified(false);
+          router.replace("/");
         } else {
-          setIsVerified(true); // authenticated
+          setIsVerified(true);
         }
       } catch (err) {
         console.error("Auth check failed:", err);
-        router.replace("/"); // fallback redirect
+        setIsVerified(false);
+        router.replace("/");
       }
     }
 

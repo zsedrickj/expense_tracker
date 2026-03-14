@@ -9,7 +9,7 @@ if (!JWT_SECRET) {
 
 // Default options
 const defaultOptions: SignOptions = {
-  expiresIn: "7d",
+  expiresIn: "10s",
 };
 
 export function generateToken(

@@ -5,7 +5,7 @@ A full-stack web application built with **Next.js** to help users track their da
 ## ✨ Features
 
 * **User Authentication:** Secure login and signup functionality using JWT.
-* **Dashboard & Analytics:** Visual representation of expenses using horizontal and bar charts.
+* **Dashboard & Analytics:** Visual representation of expenses using horizontal, pie, bar charts.
 * **Transaction Management:** Add, view, and organize daily transactions.
 * **Categories:** Group transactions by categories for better tracking.
 * **Search Functionality:** Easily search through past transactions.

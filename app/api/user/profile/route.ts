@@ -1,15 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateLoggedInUserBasicInfo } from "@/services/user.service";
+import { getUserId } from "../../transactions/route";
 
 export async function PUT(req: NextRequest) {
-  const body = await req.json();
+  try {
+    const userId = await getUserId(req);
 
-  const { userId, fullname, email } = body;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const user = await updateLoggedInUserBasicInfo(userId, {
-    fullname,
-    email,
-  });
+    const body = await req.json();
+    const { fullname, email } = body;
 
-  return NextResponse.json(user);
+    if (!fullname || !email) {
+      return NextResponse.json(
+        { error: "Fullname and email are required" },
+        { status: 400 },
+      );
+    }
+
+    const user = await updateLoggedInUserBasicInfo(userId, {
+      fullname,
+      email,
+    });
+
+    return NextResponse.json(user);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to update profile" },
+      { status: 500 },
+    );
+  }
 }

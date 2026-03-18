@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Swal from "sweetalert2";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useEditUser } from "@/hooks/useEditUser";
 
 export default function ProfileSettings() {
   const { user, loading, error, refetch } = useUserInfo();
+  const {
+    handleUpdateUser,
+    loading: updating,
+    error: updateError,
+  } = useEditUser();
 
   const [editing, setEditing] = useState(false);
   const [tempName, setTempName] = useState("");
@@ -21,10 +28,51 @@ export default function ProfileSettings() {
     setEditing(true);
   };
 
-  const handleSave = () => {
-    setOverrideName(tempName);
-    setOverrideEmail(tempEmail);
-    setEditing(false);
+  const handleSave = async () => {
+    // validation: ensure fields not empty
+    if (!tempName || !tempEmail) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing fields",
+        text: "Please fill in all fields",
+      });
+      return;
+    }
+
+    try {
+      await handleUpdateUser({
+        fullname: tempName,
+        email: tempEmail,
+      });
+
+      // optimistic UI update
+      setOverrideName(tempName);
+      setOverrideEmail(tempEmail);
+
+      setEditing(false);
+
+      // refetch data to sync
+      refetch();
+
+      // success SweetAlert
+      Swal.fire({
+        icon: "success",
+        title: "Profile Updated!",
+        text: "Your profile has been updated successfully",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: unknown) {
+      // error SweetAlert
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text:
+          err instanceof Error
+            ? err.message
+            : "Something went wrong while updating",
+      });
+    }
   };
 
   const handleCancel = () => setEditing(false);
@@ -97,7 +145,6 @@ export default function ProfileSettings() {
       <div className="px-6 py-5">
         {/* User Info Row */}
         <div className="flex items-center gap-4 mb-6">
-          {/* Avatar */}
           <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
             <svg
               width="22"
@@ -112,7 +159,6 @@ export default function ProfileSettings() {
             </svg>
           </div>
 
-          {/* Name & Email */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">
               {displayName}
@@ -120,7 +166,6 @@ export default function ProfileSettings() {
             <p className="text-xs text-gray-500 truncate">{displayEmail}</p>
           </div>
 
-          {/* Edit Button */}
           {!editing && (
             <button
               onClick={handleEdit}
@@ -131,7 +176,7 @@ export default function ProfileSettings() {
           )}
         </div>
 
-        {/* Full Name Field */}
+        {/* Full Name */}
         <div className="mb-4">
           <label className="block text-xs font-medium text-gray-600 mb-1.5">
             Full Name
@@ -149,7 +194,7 @@ export default function ProfileSettings() {
           />
         </div>
 
-        {/* Email Field */}
+        {/* Email */}
         <div className="mb-2">
           <label className="block text-xs font-medium text-gray-600 mb-1.5">
             Email
@@ -167,20 +212,27 @@ export default function ProfileSettings() {
           />
         </div>
 
-        {/* Save / Cancel Buttons */}
+        {/* Error message */}
+        {updateError && (
+          <p className="text-sm text-red-500 mt-2">{updateError}</p>
+        )}
+
+        {/* Buttons */}
         {editing && (
           <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={handleCancel}
+              disabled={updating}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+              disabled={updating}
+              className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors disabled:opacity-50"
             >
-              Save Changes
+              {updating ? "Saving..." : "Save Changes"}
             </button>
           </div>
         )}

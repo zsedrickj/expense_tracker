@@ -1,5 +1,6 @@
 import {
   getUserBasicInfoById,
+  getUserPasswordById,
   updateUserBasicInfo,
   updateUserPassword,
 } from "@/repository/user.repository";
@@ -50,4 +51,14 @@ export async function changeLoggedInUserPassword(
   }
 
   return { message: "Password updated successfully" };
+}
+
+export async function getLoggedInUserPassword(userId: string) {
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await getUserPasswordById(userId);
+
+  if (!user) throw new Error("User not found");
+
+  return user;
 }

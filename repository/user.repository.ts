@@ -46,11 +46,16 @@ export async function updateUserPassword(
 ) {
   await DbConnnection();
 
-  return User.findByIdAndUpdate(
+  const updatedUser = await User.findByIdAndUpdate(
     userId,
-    {
-      password: hashedPassword,
-    },
+    { password: hashedPassword },
     { new: true },
   );
+
+  return updatedUser;
+}
+
+export async function getUserPasswordById(userId: string) {
+  await DbConnnection();
+  return User.findById(userId).select("password").lean();
 }

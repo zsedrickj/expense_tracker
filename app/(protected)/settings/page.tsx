@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProfileSettings from "@/components/ui/profileSettings";
+import ChangePassword from "@/components/ui/changePassword";
 
 // --- Toggle Component ---
 const Toggle = ({
@@ -49,11 +50,11 @@ const SectionCard = ({
 const Settings = () => {
   const router = useRouter();
 
-  const [emailNotif, setEmailNotif] = useState(true);
-  const [budgetAlerts, setBudgetAlerts] = useState(true);
+  // 🔥 modal state
+  const [showChangePassword, setShowChangePassword] = useState(false);
+
   const [darkMode, setDarkMode] = useState(false);
   const [currency, setCurrency] = useState("USD - US Dollar");
-  const [language, setLanguage] = useState("English");
 
   const handleSignOut = async () => {
     try {
@@ -70,7 +71,7 @@ const Settings = () => {
   return (
     <div className="flex-1 transition-all duration-300 overflow-x-auto m-auto max-w-200">
       <div className="flex flex-col gap-6">
-        {/* Page Header — same pattern as Dashboard */}
+        {/* Header */}
         <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center">
           <div>
             <h1 className="text-3xl font-semibold text-gray-800">Settings</h1>
@@ -80,6 +81,7 @@ const Settings = () => {
 
         {/* Profile */}
         <ProfileSettings />
+
         {/* Security */}
         <SectionCard
           title="Security"
@@ -98,15 +100,13 @@ const Settings = () => {
           }
         >
           <div className="flex flex-col gap-3">
-            {["Change Password", "Two-Factor Authentication"].map((item) => (
-              <button
-                key={item}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"
-              >
-                {item}
-                <span className="text-gray-400 text-base">→</span>
-              </button>
-            ))}
+            <button
+              onClick={() => setShowChangePassword(true)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"
+            >
+              Change Password
+              <span className="text-gray-400 text-base">→</span>
+            </button>
           </div>
         </SectionCard>
 
@@ -129,8 +129,8 @@ const Settings = () => {
           }
         >
           <div className="flex flex-col gap-5">
-            {/* Currency & Language — side by side on md+ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Currency */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">
                   Currency
@@ -147,6 +147,8 @@ const Settings = () => {
                   <option>JPY - Japanese Yen</option>
                 </select>
               </div>
+
+              {/* Dark Mode */}
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-800">Dark Mode</p>
@@ -157,16 +159,14 @@ const Settings = () => {
                 <Toggle enabled={darkMode} onChange={setDarkMode} />
               </div>
             </div>
-
-            {/* Dark Mode */}
           </div>
         </SectionCard>
 
-        {/* Log Out Button */}
+        {/* Logout */}
         <button
           onClick={handleSignOut}
           className="w-full py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-500 font-medium text-sm
-                     hover:bg-rose-100 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                     hover:bg-rose-100 transition-colors flex items-center justify-center gap-2"
         >
           <svg
             width="16"
@@ -183,6 +183,11 @@ const Settings = () => {
           Log Out
         </button>
       </div>
+
+      {/* 🔥 Change Password Modal */}
+      {showChangePassword && (
+        <ChangePassword onClose={() => setShowChangePassword(false)} />
+      )}
     </div>
   );
 };

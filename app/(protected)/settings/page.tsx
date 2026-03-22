@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProfileSettings from "@/components/ui/profileSettings";
 import ChangePassword from "@/components/ui/changePassword";
+import { useUserPreferredCurrency } from "@/hooks/useUserPreferredCurrency";
+import { useUpdatePreferredCurrency } from "@/hooks/useUpdatePreferredCurrency";
 
 // --- Toggle Component ---
 const Toggle = ({
@@ -46,16 +48,33 @@ const SectionCard = ({
   </div>
 );
 
+// --- Currency options mapping ---
+const currencyOptions = [
+  { code: "USD", name: "US Dollar" },
+  { code: "EUR", name: "Euro" },
+  { code: "GBP", name: "British Pound" },
+  { code: "PHP", name: "Philippine Peso" },
+  { code: "JPY", name: "Japanese Yen" },
+];
+
 // --- Settings Page ---
 const Settings = () => {
   const router = useRouter();
 
-  // 🔥 modal state
   const [showChangePassword, setShowChangePassword] = useState(false);
-
   const [darkMode, setDarkMode] = useState(false);
-  const [currency, setCurrency] = useState("USD - US Dollar");
 
+  // --- preferred currency hooks ---
+  const {
+    currency,
+    setCurrency,
+    loading: currencyLoading,
+  } = useUserPreferredCurrency();
+
+  const { updateCurrency, loading: updatingCurrency } =
+    useUpdatePreferredCurrency();
+
+  // --- Logout handler ---
   const handleSignOut = async () => {
     try {
       const res = await fetch("/api/user/signout", { method: "POST" });
@@ -65,6 +84,19 @@ const Settings = () => {
       }
     } catch (error) {
       console.error("Logout failed", error);
+    }
+  };
+
+  // --- Currency change handler ---
+  const handleCurrencyChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const selectedCurrency = e.target.value.toUpperCase(); // normalize
+    setCurrency(selectedCurrency); // update UI instantly
+    try {
+      await updateCurrency(selectedCurrency); // send only code to backend
+    } catch (err) {
+      console.error("Failed to update currency:", err);
     }
   };
 
@@ -137,14 +169,15 @@ const Settings = () => {
                 </label>
                 <select
                   value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
+                  onChange={handleCurrencyChange}
+                  disabled={currencyLoading || updatingCurrency}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                 >
-                  <option>USD - US Dollar</option>
-                  <option>EUR - Euro</option>
-                  <option>GBP - British Pound</option>
-                  <option>PHP - Philippine Peso</option>
-                  <option>JPY - Japanese Yen</option>
+                  {currencyOptions.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} - {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

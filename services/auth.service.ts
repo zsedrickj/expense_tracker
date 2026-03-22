@@ -37,7 +37,12 @@ export async function login({ email, password }: LoginDTO) {
   };
 }
 
-export async function register({ fullname, email, password }: RegisterDTO) {
+export async function register({
+  fullname,
+  email,
+  password,
+  preferredCurrency,
+}: RegisterDTO) {
   if (!fullname || !email || !password) {
     throw { status: 400, message: "All fields are required" };
   }
@@ -53,6 +58,7 @@ export async function register({ fullname, email, password }: RegisterDTO) {
     fullname,
     email,
     password: hashedPassword,
+    preferredCurrency: preferredCurrency || "USD", // default
   });
 
   const token = generateToken({
@@ -66,6 +72,7 @@ export async function register({ fullname, email, password }: RegisterDTO) {
       userId: user._id,
       fullname: user.fullname,
       email: user.email,
+      preferredCurrency: user.preferredCurrency, // now included
     },
   };
 }

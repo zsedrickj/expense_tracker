@@ -48,10 +48,18 @@ export const SignUpForm = () => {
     try {
       setLoading(true);
 
+      // Add default preferredCurrency
+      const defaultCurrency = "PHP";
+
       const res = await fetch("/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullname, email, password }),
+        body: JSON.stringify({
+          fullname,
+          email,
+          password,
+          preferredCurrency: defaultCurrency,
+        }),
       });
 
       const data = await res.json();

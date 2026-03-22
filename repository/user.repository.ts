@@ -2,7 +2,7 @@
 import "server-only";
 
 import DbConnnection from "@/lib/mongodb";
-import User from "@/models/user";
+import User, { IUser } from "@/models/user";
 
 export async function findUserByEmail(email: string) {
   await DbConnnection();
@@ -13,9 +13,14 @@ export async function createUser(data: {
   fullname: string;
   email: string;
   password: string;
+  preferredCurrency?: string; // optional
 }) {
   await DbConnnection();
-  return User.create(data);
+
+  return User.create({
+    ...data,
+    preferredCurrency: data.preferredCurrency || "USD", // default to USD if not provided
+  });
 }
 
 export async function getUserBasicInfoById(userId: string) {
@@ -58,4 +63,18 @@ export async function updateUserPassword(
 export async function getUserPasswordById(userId: string) {
   await DbConnnection();
   return User.findById(userId).select("password").lean();
+}
+
+export async function updateUserPreferredCurrency(
+  userId: string,
+  currency: string,
+): Promise<IUser | null> {
+  return User.findByIdAndUpdate(
+    userId,
+    { preferredCurrency: currency.toUpperCase() },
+    { new: true },
+  );
+}
+export async function getUserById(userId: string): Promise<IUser | null> {
+  return User.findById(userId);
 }

@@ -30,7 +30,7 @@ export default function DashboardPage() {
         </div>
         <AddButton
           name="Add Transaction"
-          onClick={openAddTransaction} // 👈 simple na, walang callback
+          onClick={openAddTransaction} 
         />
       </div>
 

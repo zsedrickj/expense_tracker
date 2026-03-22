@@ -43,4 +43,3 @@ export async function POST(req: NextRequest) {
   const transaction = await createTransaction(userId, body);
   return NextResponse.json(transaction, { status: 201 });
 }
-

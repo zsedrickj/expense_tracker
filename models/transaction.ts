@@ -25,6 +25,12 @@ const TransactionSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    currency: {
+      type: String,
+      required: true,
+      uppercase: true,
+      enum: ["USD", "PHP", "EUR", "JPY"],
+    },
   },
   {
     timestamps: true,
@@ -34,13 +40,12 @@ const TransactionSchema = new mongoose.Schema(
 /**
  * 🔥 OPTIMIZED INDEXES
  */
-console.time("QueryTime");
 // 1️⃣ For getting transactions per user sorted by latest
 TransactionSchema.index({ userId: 1, transactionDate: -1 });
 
 // 2️⃣ For filtering per user + category
 TransactionSchema.index({ userId: 1, categoryId: 1 });
-console.timeEnd("QueryTime");
+
 // 3️⃣ Optional: for monthly or date range heavy filtering
 TransactionSchema.index({ userId: 1, transactionDate: 1 });
 

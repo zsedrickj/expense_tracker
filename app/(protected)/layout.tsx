@@ -10,6 +10,7 @@ import { RefreshProvider } from "./RefreshContext";
 import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import Swal from "sweetalert2";
+import { CurrencyProvider } from "./CurrencyContext";
 
 export default function ProtectedLayout({
   children,
@@ -19,7 +20,9 @@ export default function ProtectedLayout({
   return (
     <RefreshProvider>
       <ModalProvider>
-        <LayoutContent>{children}</LayoutContent>
+        <CurrencyProvider>
+          <LayoutContent>{children}</LayoutContent>
+        </CurrencyProvider>
       </ModalProvider>
     </RefreshProvider>
   );

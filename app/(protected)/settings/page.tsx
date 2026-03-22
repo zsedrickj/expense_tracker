@@ -6,7 +6,8 @@ import ProfileSettings from "@/components/ui/profileSettings";
 import ChangePassword from "@/components/ui/changePassword";
 import { useUserPreferredCurrency } from "@/hooks/useUserPreferredCurrency";
 import { useUpdatePreferredCurrency } from "@/hooks/useUpdatePreferredCurrency";
-
+import { useRefresh } from "../RefreshContext";
+import { useCurrency } from "../CurrencyContext";
 // --- Toggle Component ---
 const Toggle = ({
   enabled,
@@ -64,6 +65,9 @@ const Settings = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+  const { refreshDashboard } = useRefresh();
+  const { setCurrency: setCurrencyContext } = useCurrency();
+
   // --- preferred currency hooks ---
   const {
     currency,
@@ -94,7 +98,9 @@ const Settings = () => {
     const selectedCurrency = e.target.value.toUpperCase(); // normalize
     setCurrency(selectedCurrency); // update UI instantly
     try {
-      await updateCurrency(selectedCurrency); // send only code to backend
+      setCurrencyContext(selectedCurrency);
+      await updateCurrency(selectedCurrency);
+      refreshDashboard(); // send only code to backend
     } catch (err) {
       console.error("Failed to update currency:", err);
     }

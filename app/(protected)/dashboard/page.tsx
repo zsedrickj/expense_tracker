@@ -7,11 +7,17 @@ import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useCurrency } from "../CurrencyContext";
+import { useRefresh } from "../RefreshContext";
+
+
 
 export default function DashboardPage() {
   const isVerified = useAuthGuard();
   const { openAddTransaction } = useModal();
   const { stats, loading } = useDashboardStats(); // 👈 simple na, walang refresh
+  const { currency } = useCurrency();
+  const { dashboardKey } = useRefresh();
 
   if (!isVerified) return null;
 
@@ -19,19 +25,16 @@ export default function DashboardPage() {
   const iconBgColors = ["bg-emerald-100", "bg-rose-100", "bg-sky-100"];
   const iconColors = ["text-emerald-600", "text-rose-600", "text-sky-600"];
   const percentColors = ["text-emerald-500", "text-rose-500", "text-sky-500"];
-  
+
   return (
-    <div className="flex-1 transition-all duration-300 overflow-x-auto m-auto max-w-350">
+    <div  className="flex-1 transition-all duration-300 overflow-x-auto m-auto max-w-350">
       {/* Header */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
           <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
           <p className="text-gray-500">Overview of your financial activity</p>
         </div>
-        <AddButton
-          name="Add Transaction"
-          onClick={openAddTransaction} 
-        />
+        <AddButton name="Add Transaction" onClick={openAddTransaction} />
       </div>
 
       {/* Stats */}
@@ -68,6 +71,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="text-gray-500 text-sm">{item.title}</p>
                     <h1 className="text-2xl font-semibold">
+                      {currency.symbol}
                       {item.amount.toLocaleString().split(" ")[0]}
                     </h1>
                   </div>

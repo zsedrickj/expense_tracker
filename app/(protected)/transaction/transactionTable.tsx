@@ -18,6 +18,7 @@ import EditTransaction from "@/components/ui/editTransaction";
 import { Transaction } from "@/types/transaction.types";
 import { useRefresh } from "@/app/(protected)/RefreshContext";
 import Swal from "sweetalert2"; // ✅ SweetAlert2
+import { useCurrency } from "../CurrencyContext";
 
 type FilterButton = { name: string; value: string };
 
@@ -44,7 +45,7 @@ const TransactionTable: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
-
+  const { currency } = useCurrency();
   const debouncedSearch = useDebounce(search, 500);
 
   useEffect(() => {
@@ -191,6 +192,7 @@ const TransactionTable: React.FC = () => {
                           : "text-rose-600"
                       }
                     >
+                      {currency.symbol}
                       {item.amount}
                     </span>
                   </TableCell>

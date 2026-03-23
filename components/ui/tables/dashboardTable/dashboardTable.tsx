@@ -10,9 +10,11 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { useDashboardTable } from "@/hooks/useDashboardTable";
+import { useCurrency } from "@/app/(protected)/CurrencyContext";
 
 const DashboardTable: React.FC = () => {
   const { search, setSearch, filteredTransactions } = useDashboardTable();
+  const { currency } = useCurrency();
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-5 w-full max-h-full">
@@ -63,6 +65,7 @@ const DashboardTable: React.FC = () => {
                           : "text-rose-600"
                       }
                     >
+                      {currency.symbol}
                       {item.amount}
                     </div>
 

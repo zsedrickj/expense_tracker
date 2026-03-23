@@ -18,7 +18,7 @@ const Toggle = ({
 }) => (
   <button
     onClick={() => onChange(!enabled)}
-    className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0 ${
+    className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
       enabled ? "bg-emerald-500" : "bg-gray-300"
     }`}
   >

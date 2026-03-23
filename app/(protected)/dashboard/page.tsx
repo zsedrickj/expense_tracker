@@ -8,7 +8,7 @@ import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useCurrency } from "../CurrencyContext";
-import { useRefresh } from "../RefreshContext";
+
 
 
 
@@ -17,7 +17,7 @@ export default function DashboardPage() {
   const { openAddTransaction } = useModal();
   const { stats, loading } = useDashboardStats(); // 👈 simple na, walang refresh
   const { currency } = useCurrency();
-  const { dashboardKey } = useRefresh();
+
 
   if (!isVerified) return null;
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCurrency } from "@/app/(protected)/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useHorizontalChart } from "@/hooks/useHorizontalChart";
 
@@ -15,6 +16,7 @@ const COLORS = [
 
 export function ChartBarLabelCustom() {
   const { data, loading, error } = useHorizontalChart();
+  const { currency } = useCurrency();
 
   return (
     <div className="w-full md:w-[50%]">
@@ -62,7 +64,8 @@ export function ChartBarLabelCustom() {
                           {item.percent}%
                         </span>
                         <span className="font-semibold text-foreground w-20 text-right">
-                          ₱{item.value.toLocaleString()}.00
+                          {currency.symbol}
+                          {item.value.toLocaleString()}.00
                         </span>
                       </div>
                     </div>

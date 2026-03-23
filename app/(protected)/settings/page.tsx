@@ -8,7 +8,8 @@ import { useUserPreferredCurrency } from "@/hooks/useUserPreferredCurrency";
 import { useUpdatePreferredCurrency } from "@/hooks/useUpdatePreferredCurrency";
 import { useRefresh } from "../RefreshContext";
 import { useCurrency } from "../CurrencyContext";
-// --- Toggle Component ---
+import { useTheme } from "../ThemeContext";
+
 const Toggle = ({
   enabled,
   onChange,
@@ -19,7 +20,7 @@ const Toggle = ({
   <button
     onClick={() => onChange(!enabled)}
     className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
-      enabled ? "bg-emerald-500" : "bg-gray-300"
+      enabled ? "bg-emerald-500" : "bg-muted"
     }`}
   >
     <span
@@ -30,7 +31,6 @@ const Toggle = ({
   </button>
 );
 
-// --- Section Card ---
 const SectionCard = ({
   icon,
   title,
@@ -40,16 +40,15 @@ const SectionCard = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-    <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-      <span className="text-gray-500">{icon}</span>
-      <h2 className="text-base font-semibold text-gray-800">{title}</h2>
+  <div className="bg-card rounded-2xl border border-border shadow-lg overflow-hidden">
+    <div className="flex items-center gap-3 px-6 py-4 border-b border-border">
+      <span className="text-muted-foreground">{icon}</span>
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
     </div>
     <div className="px-6 py-5">{children}</div>
   </div>
 );
 
-// --- Currency options mapping ---
 const currencyOptions = [
   { code: "USD", name: "US Dollar" },
   { code: "EUR", name: "Euro" },
@@ -58,27 +57,21 @@ const currencyOptions = [
   { code: "JPY", name: "Japanese Yen" },
 ];
 
-// --- Settings Page ---
 const Settings = () => {
   const router = useRouter();
-
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
+  const { darkMode, setDarkMode } = useTheme();
   const { refreshDashboard } = useRefresh();
   const { setCurrency: setCurrencyContext } = useCurrency();
 
-  // --- preferred currency hooks ---
   const {
     currency,
     setCurrency,
     loading: currencyLoading,
   } = useUserPreferredCurrency();
-
   const { updateCurrency, loading: updatingCurrency } =
     useUpdatePreferredCurrency();
 
-  // --- Logout handler ---
   const handleSignOut = async () => {
     try {
       const res = await fetch("/api/user/signout", { method: "POST" });
@@ -91,16 +84,15 @@ const Settings = () => {
     }
   };
 
-  // --- Currency change handler ---
   const handleCurrencyChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    const selectedCurrency = e.target.value.toUpperCase(); // normalize
-    setCurrency(selectedCurrency); // update UI instantly
+    const selectedCurrency = e.target.value.toUpperCase();
+    setCurrency(selectedCurrency);
     try {
       setCurrencyContext(selectedCurrency);
       await updateCurrency(selectedCurrency);
-      refreshDashboard(); // send only code to backend
+      refreshDashboard();
     } catch (err) {
       console.error("Failed to update currency:", err);
     }
@@ -112,12 +104,13 @@ const Settings = () => {
         {/* Header */}
         <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center">
           <div>
-            <h1 className="text-3xl font-semibold text-gray-800">Settings</h1>
-            <p className="text-gray-500">Manage your account and preferences</p>
+            <h1 className="text-3xl font-semibold text-foreground">Settings</h1>
+            <p className="text-muted-foreground">
+              Manage your account and preferences
+            </p>
           </div>
         </div>
 
-        {/* Profile */}
         <ProfileSettings />
 
         {/* Security */}
@@ -140,10 +133,10 @@ const Settings = () => {
           <div className="flex flex-col gap-3">
             <button
               onClick={() => setShowChangePassword(true)}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-muted hover:bg-accent transition-colors text-sm font-medium text-foreground"
             >
               Change Password
-              <span className="text-gray-400 text-base">→</span>
+              <span className="text-muted-foreground text-base">→</span>
             </button>
           </div>
         </SectionCard>
@@ -168,30 +161,34 @@ const Settings = () => {
         >
           <div className="flex flex-col gap-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Currency */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                   Currency
                 </label>
                 <select
                   value={currency}
                   onChange={handleCurrencyChange}
                   disabled={currencyLoading || updatingCurrency}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-muted text-sm text-foreground outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                 >
                   {currencyOptions.map((c) => (
-                    <option key={c.code} value={c.code}>
+                    <option
+                      key={c.code}
+                      value={c.code}
+                      className="bg-card text-foreground"
+                    >
                       {c.code} - {c.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Dark Mode */}
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Dark Mode</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-sm font-medium text-foreground">
+                    Dark Mode
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Enable dark mode theme
                   </p>
                 </div>
@@ -204,8 +201,7 @@ const Settings = () => {
         {/* Logout */}
         <button
           onClick={handleSignOut}
-          className="w-full py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-500 font-medium text-sm
-                     hover:bg-rose-100 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive font-medium text-sm hover:bg-destructive/20 transition-colors flex items-center justify-center gap-2"
         >
           <svg
             width="16"
@@ -223,7 +219,6 @@ const Settings = () => {
         </button>
       </div>
 
-      {/* 🔥 Change Password Modal */}
       {showChangePassword && (
         <ChangePassword onClose={() => setShowChangePassword(false)} />
       )}

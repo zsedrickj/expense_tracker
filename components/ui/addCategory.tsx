@@ -39,13 +39,9 @@ const AddCategory = () => {
       });
       return;
     }
-
     try {
       await add({ name: form.name, type: form.type });
-
-      // Refresh categories
-      refreshAll(); // <-- here
-
+      refreshAll();
       setForm({ name: "", type: "" });
       closeAddCategory();
       Swal.fire({
@@ -61,7 +57,7 @@ const AddCategory = () => {
       Swal.fire({
         icon: "error",
         title: "Failed!",
-        text: err?.message || "Something went wrong. Please try again.",
+        text: err?.message || "Something went wrong.",
         confirmButtonColor: "#34d399",
       });
     }
@@ -71,28 +67,27 @@ const AddCategory = () => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="flex flex-col p-6 bg-white rounded-2xl shadow-2xl w-full max-w-md gap-5">
-        {/* Header */}
+      <div className="flex flex-col p-6 bg-card rounded-2xl shadow-2xl w-full max-w-md gap-5 border border-border">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">Add Category</h2>
+          <h2 className="text-xl font-bold text-foreground">Add Category</h2>
           <X
             onClick={closeAddCategory}
-            className="cursor-pointer text-gray-500 hover:text-gray-800"
+            className="cursor-pointer text-muted-foreground hover:text-foreground"
           />
         </div>
 
-        <hr className="border-gray-200" />
+        <hr className="border-border" />
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-600">
+            <label className="text-sm font-medium text-muted-foreground">
               Category Name
             </label>
             <input
               type="text"
               name="name"
               placeholder="e.g. Groceries"
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-border rounded-xl bg-muted text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
               value={form.name}
               onChange={handleChange}
               required
@@ -100,26 +95,32 @@ const AddCategory = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-600">Type</label>
+            <label className="text-sm font-medium text-muted-foreground">
+              Type
+            </label>
             <select
               name="type"
               value={form.type}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-600"
+              className="w-full p-3 border border-border rounded-xl bg-muted text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             >
-              <option value="" disabled>
+              <option value="" disabled className="bg-card">
                 Select Type
               </option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
+              <option value="income" className="bg-card">
+                Income
+              </option>
+              <option value="expense" className="bg-card">
+                Expense
+              </option>
             </select>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-4 w-full py-3 bg-emerald-400 text-white rounded-xl font-bold hover:bg-emerald-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 w-full py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Save Category"}
           </button>

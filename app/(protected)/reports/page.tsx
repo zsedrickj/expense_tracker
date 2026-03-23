@@ -5,20 +5,18 @@ import React from "react";
 
 const ReportPage = () => {
   return (
-    <div className="flex-1  transition-all duration-300 overflow-x-auto mb-10 m-auto max-w-350">
-      {/* Header */}
+    <div className="flex-1 transition-all duration-300 overflow-x-auto mb-10 m-auto max-w-350">
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-800">Reports</h1>
-          <p className="text-gray-500">
+          <h1 className="text-3xl font-semibold text-foreground">Reports</h1>
+          <p className="text-muted-foreground">
             Analyze your spending patterns and trends
           </p>
         </div>
       </div>
-
       <div className="flex flex-col w-full gap-y-10">
         <ChartBarMultiple />
-        <div className="flex flex-col w-auto justify-between gap-10  md:flex-row ">
+        <div className="flex flex-col w-auto justify-between gap-10 md:flex-row">
           <ChartPieLabel />
           <ChartBarLabelCustom />
         </div>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AddButton from "@/components/ui/addButton";
 import CategoryCard from "@/components/ui/categoryCard";
 import EditCategory from "@/components/ui/editCategory";
@@ -11,10 +11,10 @@ import { Category } from "@/types/category.types";
 import { useRefresh } from "../RefreshContext";
 import Swal from "sweetalert2";
 import { useDeleteCategory } from "@/hooks/useDeleteCategory";
+import { useEffect } from "react";
 
 const CategoryPage = () => {
   const { openAddCategory } = useModal();
-
   const { categories, loading, error, unauthorized, fetchCategories } =
     useCategories();
   const { dashboardKey } = useRefresh();
@@ -27,6 +27,7 @@ const CategoryPage = () => {
     loading: deleting,
     error: deleteError,
   } = useDeleteCategory();
+
   useEffect(() => {
     fetchCategories();
   }, [dashboardKey, fetchCategories]);
@@ -34,14 +35,15 @@ const CategoryPage = () => {
   const incomeCategories = categories.filter(
     (cat: Category) => cat.type === "income",
   );
-
   const expenseCategories = categories.filter(
     (cat: Category) => cat.type === "expense",
   );
 
-  if (unauthorized) return <p className="text-red-500">Unauthorized access.</p>;
-  if (loading) return <p className="text-gray-500">Loading categories...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (unauthorized)
+    return <p className="text-destructive">Unauthorized access.</p>;
+  if (loading)
+    return <p className="text-muted-foreground">Loading categories...</p>;
+  if (error) return <p className="text-destructive">{error}</p>;
 
   const handleDelete = async (_id: any) => {
     const result = await Swal.fire({
@@ -56,7 +58,7 @@ const CategoryPage = () => {
     });
 
     if (result.isConfirmed) {
-      const success = await handleDeleteCategory(_id); // ✅ use the hook's function
+      const success = await handleDeleteCategory(_id);
       if (success) {
         Swal.fire({
           icon: "success",
@@ -66,7 +68,7 @@ const CategoryPage = () => {
           showConfirmButton: false,
           timerProgressBar: true,
         });
-        fetchCategories(); // refresh your list
+        fetchCategories();
       } else {
         Swal.fire({
           icon: "error",
@@ -82,22 +84,22 @@ const CategoryPage = () => {
       {/* Header */}
       <div className="flex flex-col gap-5 md:flex-row md:justify-between md:items-center mb-10">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-800">Categories</h1>
-          <p className="text-gray-500">Manage your transaction categories</p>
+          <h1 className="text-3xl font-semibold text-foreground">Categories</h1>
+          <p className="text-muted-foreground">
+            Manage your transaction categories
+          </p>
         </div>
-
         <AddButton name="Add Category" onClick={openAddCategory} />
       </div>
 
       {/* Income */}
       <section className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
-          <h2 className="text-base font-semibold text-gray-700">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+          <h2 className="text-base font-semibold text-foreground">
             Income Categories
           </h2>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {incomeCategories.map((cat) => (
             <CategoryCard
@@ -106,8 +108,8 @@ const CategoryPage = () => {
               type="Income"
               color="#22c55e"
               onEdit={() => {
-                setSelectedCategory(cat); // i-set ang category na ie-edit
-                setEditing(true); // i-show ang EditCategory modal
+                setSelectedCategory(cat);
+                setEditing(true);
               }}
               onDelete={() => handleDelete(cat._id)}
             />
@@ -119,11 +121,10 @@ const CategoryPage = () => {
       <section>
         <div className="flex items-center gap-2 mb-4">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
-          <h2 className="text-base font-semibold text-gray-700">
+          <h2 className="text-base font-semibold text-foreground">
             Expense Categories
           </h2>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {expenseCategories.map((cat) => (
             <CategoryCard
@@ -132,7 +133,7 @@ const CategoryPage = () => {
               type="Expense"
               color="#ef4444"
               onEdit={() => {
-                setSelectedCategory(cat); // ✅ important
+                setSelectedCategory(cat);
                 setEditing(true);
               }}
               onDelete={() => handleDelete(cat._id)}
@@ -141,7 +142,6 @@ const CategoryPage = () => {
         </div>
       </section>
 
-      {/* ✅ Edit Modal */}
       {editing && selectedCategory && (
         <EditCategory
           category={selectedCategory}

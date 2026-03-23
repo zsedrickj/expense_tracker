@@ -11,6 +11,7 @@ import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import Swal from "sweetalert2";
 import { CurrencyProvider } from "./CurrencyContext";
+import { ThemeProvider } from "./ThemeContext";
 
 export default function ProtectedLayout({
   children,
@@ -21,7 +22,9 @@ export default function ProtectedLayout({
     <RefreshProvider>
       <ModalProvider>
         <CurrencyProvider>
-          <LayoutContent>{children}</LayoutContent>
+          <ThemeProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </ThemeProvider>
         </CurrencyProvider>
       </ModalProvider>
     </RefreshProvider>
@@ -95,7 +98,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   if (isVerified === null) return <div>Loading...</div>;
 
   return (
-    <div className="h-screen w-screen bg-gray-100 overflow-x-auto md:flex md:overflow-hidden">
+    <div className="h-screen w-screen bg-background overflow-x-auto md:flex md:overflow-hidden">
       <NavBar isClosed={isClosed} setIsClosed={setIsClosed} />
 
       <div className="flex-1 relative transition-all duration-300 overflow-x-auto">

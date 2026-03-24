@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/api/transactions/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -35,11 +36,30 @@ export async function GET(req: NextRequest) {
 
 /** POST create a new transaction */
 export async function POST(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const userId = await getUserId(req);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const body: CreateTransactionDTO = await req.json();
-  const transaction = await createTransaction(userId, body);
-  return NextResponse.json(transaction, { status: 201 });
+    const body: CreateTransactionDTO = await req.json();
+
+    // Optional: basic validation
+    if (!body.title || !body.categoryId || !body.amount) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
+    }
+
+    const transaction = await createTransaction(userId, body);
+
+    return NextResponse.json(transaction, { status: 201 });
+  } catch (err: any) {
+    console.error("POST /transactions error:", err);
+    return NextResponse.json(
+      { error: err.message || "Server error" },
+      { status: 500 },
+    );
+  }
 }

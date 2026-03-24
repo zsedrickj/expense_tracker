@@ -8,13 +8,18 @@ export const addTransaction = async (data: TransactionForm, token?: string) => {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(data),
-    credentials: "include", // send cookie if using HttpOnly JWT
+    credentials: "include",
   });
 
+  // Read text first
+  const text = await res.text();
+
+  // If the response is not ok, throw an error
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err?.error || "Failed to add transaction");
+    const err = text ? JSON.parse(text) : { error: `Status ${res.status}` };
+    throw new Error(err?.error || `Failed to add transaction`);
   }
 
-  return res.json();
+  // Return parsed JSON if available, otherwise null
+  return text ? JSON.parse(text) : null;
 };

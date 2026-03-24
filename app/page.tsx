@@ -8,7 +8,7 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen w-full overflow-x-hidden relative transition-colors duration-300"
+      className="min-h-screen w-full overflow-x-hidden relative transition-colors duration-300 flex flex-col"
       style={{ background: "var(--background)", color: "var(--foreground)" }}
     >
       {/* Background green radial glow */}
@@ -22,30 +22,25 @@ export default function Home() {
       />
 
       {/* Navbar */}
-      <nav className="relative z-10 py-4 sm:py-5">
+      <nav className="relative z-10 py-4 sm:py-5 shrink-0">
         <div className="flex items-center justify-between px-5 sm:px-8 lg:px-10 max-w-screen-xl mx-auto">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-              <span className="text-black font-bold text-base sm:text-lg">
+              <span className="text-white font-bold text-base dark:text-black sm:text-lg">
                 $
               </span>
             </div>
-            <span
-              className="font-bold text-lg sm:text-xl tracking-tight"
-              style={{ color: "var(--foreground)" }}
-            >
+            <span className="font-bold text-lg text-black dark:text-black sm:text-xl tracking-tight ">
               ExpenseTracker
             </span>
           </div>
 
           {/* Right side: toggle + get started */}
           <div className="flex items-center gap-3">
-          
-
             <Link
               href="/auth/login"
-              className="bg-green-500 hover:bg-green-400 text-black font-semibold px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base transition-colors duration-200 whitespace-nowrap"
+              className="bg-green-500 hover:bg-green-400 text-white  font-semibold px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base transition-colors duration-200 whitespace-nowrap"
             >
               Get Started
             </Link>
@@ -54,7 +49,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative z-10 flex flex-col lg:flex-row items-center justify-between px-5 sm:px-8 lg:px-10 pt-10 sm:pt-14 lg:pt-16 pb-10 max-w-screen-xl mx-auto gap-10 lg:gap-12">
+      <section className="relative z-10 flex-1 flex flex-col lg:flex-row items-center justify-between px-5 sm:px-8 lg:px-10 pt-10 sm:pt-14 lg:pt-16 pb-10 max-w-screen-xl mx-auto w-full gap-10 lg:gap-12">
         {/* Left: Text */}
         <div className="flex-1 w-full max-w-xl text-center lg:text-left">
           <h1
@@ -86,7 +81,7 @@ export default function Home() {
                 color: "var(--foreground)",
               }}
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 " fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
               </svg>
               View Demo
@@ -339,6 +334,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer
+        className="relative z-10 w-full border-t py-6 shrink-0"
+        style={{
+          borderColor: "var(--border)",
+        }}
+      >
+        <div className="max-w-screen-xl mx-auto px-5 sm:px-8 lg:px-10 text-center">
+          <p
+            className="text-sm sm:text-base"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            Created by{" "}
+            <span
+              className="font-semibold"
+              style={{ color: "var(--foreground)" }}
+            >
+              <Link
+                href="https://github.com/zsedrickj"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Zsed
+              </Link>
+            </span>
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

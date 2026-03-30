@@ -20,7 +20,6 @@ export default function DashboardPage() {
   const icons = [TrendingUp, TrendingDown, Wallet];
   const iconBgColors = ["bg-emerald-100/20", "bg-rose-100/20", "bg-sky-100/20"];
   const iconColors = ["text-emerald-500", "text-rose-500", "text-sky-500"];
-  const percentColors = ["text-emerald-500", "text-rose-500", "text-sky-500"];
 
   return (
     <div className="flex-1 transition-all duration-300 overflow-x-auto m-auto max-w-350">
@@ -49,7 +48,6 @@ export default function DashboardPage() {
               const Icon = icons[index];
               const iconBg = iconBgColors[index];
               const iconColor = iconColors[index];
-              const percentColor = percentColors[index];
 
               return (
                 <div
@@ -62,10 +60,6 @@ export default function DashboardPage() {
                     >
                       <Icon className={iconColor} />
                     </div>
-                    <p className={`text-sm font-medium ${percentColor}`}>
-                      {item.percent > 0 ? "+" : ""}
-                      {item.percent}%
-                    </p>
                   </div>
 
                   <div>

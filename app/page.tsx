@@ -27,11 +27,11 @@ export default function Home() {
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-base dark:text-black sm:text-lg">
+              <span className="text-black font-bold text-base dark:text-white sm:text-lg">
                 $
               </span>
             </div>
-            <span className="font-bold text-lg text-black dark:text-black sm:text-xl tracking-tight ">
+            <span className="font-bold text-lg text-black dark:text-white sm:text-xl tracking-tight ">
               ExpenseTracker
             </span>
           </div>
@@ -40,7 +40,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Link
               href="/auth/login"
-              className="bg-green-500 hover:bg-green-400 text-white  font-semibold px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base transition-colors duration-200 whitespace-nowrap"
+              className="bg-green-500 hover:bg-green-400 text-white   font-semibold px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base transition-colors duration-200 whitespace-nowrap"
             >
               Get Started
             </Link>
@@ -70,22 +70,10 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center lg:justify-start">
             <Link
               href="/auth/login"
-              className="flex items-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold px-6 sm:px-7 py-3 rounded-full transition-colors duration-200 w-full sm:w-auto justify-center"
+              className="flex items-center gap-2 bg-green-500 hover:bg-green-400 text-black dark:text-white font-semibold px-6 sm:px-7 py-3 rounded-full transition-colors duration-200 w-full sm:w-auto justify-center"
             >
               Start Tracking <span className="text-xl">→</span>
             </Link>
-            <button
-              className="flex items-center gap-2 px-6 sm:px-7 py-3 rounded-full transition-colors duration-200 w-full sm:w-auto justify-center border"
-              style={{
-                borderColor: "var(--border)",
-                color: "var(--foreground)",
-              }}
-            >
-              <svg className="w-4 h-4 " fill="currentColor" viewBox="0 0 20 20">
-                <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-              </svg>
-              View Demo
-            </button>
           </div>
         </div>
 

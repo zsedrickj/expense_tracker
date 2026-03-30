@@ -4,18 +4,19 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation"; // ✅ correct for App Router
+import { useRouter } from "next/navigation";
+import ForgotPassword from "@/components/ui/forgotPassword";
 
 const LoginForm = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Frontend validation
     if (!email || !password) {
       Swal.fire({
         icon: "error",
@@ -56,7 +57,6 @@ const LoginForm = () => {
         return;
       }
 
-      // Success alert + redirect
       Swal.fire({
         icon: "success",
         title: "Login Successful",
@@ -65,7 +65,6 @@ const LoginForm = () => {
         router.replace("/dashboard");
       });
 
-      // Reset form
       setEmail("");
       setPassword("");
       setLoading(false);
@@ -144,12 +143,14 @@ const LoginForm = () => {
               Remember Me
             </label>
 
-            <a
-              href="/forgot-password"
-              className="text-emerald-600 dark:text-emerald-400 hover:underline"
+            {/* ✅ type="button" prevents accidental form submit */}
+            <button
+              type="button"
+              onClick={() => setShowForgot(true)}
+              className="text-emerald-600 dark:text-emerald-400 hover:underline text-sm bg-transparent border-none p-0 cursor-pointer"
             >
               Forgot Password?
-            </a>
+            </button>
           </div>
 
           <button
@@ -174,6 +175,9 @@ const LoginForm = () => {
           </p>
         </form>
       </div>
+
+      {/* ✅ Modal is OUTSIDE the <form> — fixes the nested form hydration error */}
+      <ForgotPassword show={showForgot} onClose={() => setShowForgot(false)} />
     </div>
   );
 };

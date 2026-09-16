@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMonthlyTotals } from "@/services/transaction.service";
-import jwt from "jsonwebtoken";
 import { getUserId } from "../../route";
 
 

@@ -44,9 +44,10 @@ export async function getUserTransactions(
 
 export async function getTransactionById(
   id: string,
+  userId: string,
 ): Promise<TransactionDTO | null> {
   await DbConnection();
-  const doc = await TransactionModel.findById(id).populate(
+  const doc = await TransactionModel.findOne({ _id: id, userId }).populate(
     "categoryId",
     "name type",
   );
@@ -55,6 +56,7 @@ export async function getTransactionById(
 
 export const updateTransactionRepo = async (
   id: string,
+  userId: string,
   data: any
 ) => {
   await DbConnection();
@@ -64,12 +66,15 @@ export const updateTransactionRepo = async (
     throw new Error("Invalid categoryId");
   }
 
-  return TransactionModel.findByIdAndUpdate(id, data, { new: true })
+  return TransactionModel.findOneAndUpdate({ _id: id, userId }, data, {
+    new: true,
+    runValidators: true,
+  })
     .populate("categoryId", "name type");
 };
-export async function deleteTransaction(id: string): Promise<boolean> {
+export async function deleteTransaction(id: string, userId: string): Promise<boolean> {
   await DbConnection();
-  const doc = await TransactionModel.findByIdAndDelete(id);
+  const doc = await TransactionModel.findOneAndDelete({ _id: id, userId });
   return !!doc;
 }
 

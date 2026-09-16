@@ -130,9 +130,9 @@ export async function getUserCurrency(userId: string) {
 }
 
 export async function forgotPassword(email: string) {
-  if (!email) throw new Error("Email is required.");
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error("A valid email is required.");
 
-  const user = await findUserByEmail(email);
+  const user = await findUserByEmail(email.trim().toLowerCase());
 
   // Always return success — hindi i-expose kung may account o wala
   if (!user) return { success: true };

@@ -1,81 +1,76 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import {
+  deleteCategory,
   getCategoryById,
   updateCategory,
-  deleteCategory,
 } from "@/services/category.service";
-import { UpdateCategoryDTO } from "@/types/category.types";
-import jwt from "jsonwebtoken";
+import { getAuthenticatedUserId, isTrustedMutation } from "@/lib/requestSecurity";
+import type { UpdateCategoryDTO } from "@/types/category.types";
 
-/** Helper: get userId from token */
-async function getUserId(req: NextRequest): Promise<string | null> {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
-
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
-    return payload.id;
-  } catch {
-    return null;
-  }
+function getId(req: NextRequest) {
+  return req.nextUrl.pathname.split("/").pop();
 }
 
-/** GET /api/categories/:id */
 export async function GET(req: NextRequest) {
-  const userId = await getUserId(req);
+  const userId = getAuthenticatedUserId(req);
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const id = req.nextUrl.pathname.split("/").pop();
+  const id = getId(req);
   if (!id) return NextResponse.json({ error: "Category ID required" }, { status: 400 });
 
   try {
-    const category = await getCategoryById(id);
+    const category = await getCategoryById(id, userId);
     if (!category) return NextResponse.json({ error: "Category not found" }, { status: 404 });
-
-    return NextResponse.json(category, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(category);
+  } catch {
+    return NextResponse.json({ error: "Unable to fetch category" }, { status: 400 });
   }
 }
 
-/** PUT /api/categories/:id */
 export async function PUT(req: NextRequest) {
-  const userId = await getUserId(req);
+  const userId = getAuthenticatedUserId(req);
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isTrustedMutation(req)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
 
-  const id = req.nextUrl.pathname.split("/").pop();
+  const id = getId(req);
   if (!id) return NextResponse.json({ error: "Category ID required" }, { status: 400 });
 
+  let body: UpdateCategoryDTO;
   try {
-    const body: UpdateCategoryDTO = await req.json();
-    if (!body.name) return NextResponse.json({ error: "Category name is required" }, { status: 400 });
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  if (
+    typeof body.name !== "string" ||
+    !body.name.trim() ||
+    (body.type !== undefined && body.type !== "income" && body.type !== "expense")
+  ) {
+    return NextResponse.json({ error: "Invalid category data" }, { status: 400 });
+  }
 
-    const updated = await updateCategory(id, body);
+  try {
+    const updated = await updateCategory(id, userId, body);
     if (!updated) return NextResponse.json({ error: "Category not found" }, { status: 404 });
-
-    return NextResponse.json(updated, { status: 200 });
-  } catch (error: any) {
-    console.error("PUT /api/categories/:id error:", error);
-    return NextResponse.json({ error: error.message || "Failed to update category" }, { status: 500 });
+    return NextResponse.json(updated);
+  } catch {
+    return NextResponse.json({ error: "Unable to update category" }, { status: 400 });
   }
 }
 
-/** DELETE /api/categories/:id */
 export async function DELETE(req: NextRequest) {
-  const userId = await getUserId(req);
+  const userId = getAuthenticatedUserId(req);
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isTrustedMutation(req)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
 
-  const id = req.nextUrl.pathname.split("/").pop();
+  const id = getId(req);
   if (!id) return NextResponse.json({ error: "Category ID required" }, { status: 400 });
 
   try {
-    const category = await getCategoryById(id);
-    if (!category) return NextResponse.json({ error: "Category not found" }, { status: 404 });
-
-    const deleted = await deleteCategory(id);
-    return NextResponse.json({ success: deleted }, { status: deleted ? 200 : 404 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const deleted = await deleteCategory(id, userId);
+    if (!deleted) return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Unable to delete category" }, { status: 400 });
   }
 }

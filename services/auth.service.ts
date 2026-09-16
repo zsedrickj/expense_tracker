@@ -7,11 +7,16 @@ import { createUser, findUserByEmail } from "@/repository/user.repository";
 import { LoginDTO, RegisterDTO } from "@/types/auth.types";
 
 export async function login({ email, password }: LoginDTO) {
-  if (!email || !password) {
+  if (
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    !email.trim() ||
+    !password
+  ) {
     throw { status: 400, message: "Email and password are required" };
   }
 
-  const user = await findUserByEmail(email);
+  const user = await findUserByEmail(email.trim().toLowerCase());
 
   if (!user) {
     throw { status: 401, message: "Invalid credentials" };
@@ -43,11 +48,29 @@ export async function register({
   password,
   preferredCurrency,
 }: RegisterDTO) {
-  if (!fullname || !email || !password) {
+  if (
+    typeof fullname !== "string" ||
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    !fullname.trim() ||
+    !email.trim() ||
+    !password
+  ) {
     throw { status: 400, message: "All fields are required" };
   }
 
-  const existingUser = await findUserByEmail(email);
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
+    throw { status: 400, message: "A valid email is required" };
+  }
+  if (password.length < 8) {
+    throw { status: 400, message: "Password must be at least 8 characters" };
+  }
+  if (fullname.trim().length > 100 || normalizedEmail.length > 254) {
+    throw { status: 400, message: "Input is too long" };
+  }
+
+  const existingUser = await findUserByEmail(normalizedEmail);
   if (existingUser) {
     throw { status: 409, message: "Email already exists" };
   }
@@ -55,8 +78,8 @@ export async function register({
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await createUser({
-    fullname,
-    email,
+    fullname: fullname.trim(),
+    email: normalizedEmail,
     password: hashedPassword,
     preferredCurrency: preferredCurrency || "USD", // default
   });

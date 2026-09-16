@@ -22,11 +22,7 @@ const CategoryPage = () => {
     Category | undefined
   >(undefined);
   const [editing, setEditing] = useState(false);
-  const {
-    handleDeleteCategory,
-    loading: deleting,
-    error: deleteError,
-  } = useDeleteCategory();
+  const { handleDeleteCategory } = useDeleteCategory();
 
   useEffect(() => {
     fetchCategories();

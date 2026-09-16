@@ -97,7 +97,7 @@ const TransactionTable: React.FC = () => {
           timer: 2000,
           showConfirmButton: false,
         });
-      } catch (error) {
+      } catch {
         Swal.fire({
           title: "Error!",
           text: "Failed to delete transaction.",

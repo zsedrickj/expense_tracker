@@ -1,65 +1,59 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/app/api/transactions/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
   createTransaction,
   getUserTransactions,
-  getDashboardStats,
 } from "@/services/transaction.service";
-import { CreateTransactionDTO } from "@/types/transaction.types";
-import jwt from "jsonwebtoken";
+import type { CreateTransactionDTO } from "@/types/transaction.types";
+import { getAuthenticatedUserId, isTrustedMutation } from "@/lib/requestSecurity";
 
-/** Helper: get userId from JWT cookie */
-export async function getUserId(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
+export function getUserId(req: NextRequest) {
+  return getAuthenticatedUserId(req);
+}
+
+export async function GET(req: NextRequest) {
+  const userId = getUserId(req);
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: string;
-    };
-    return payload.id;
+    return NextResponse.json(await getUserTransactions(userId));
   } catch {
-    return null;
+    return NextResponse.json({ error: "Unable to fetch transactions" }, { status: 500 });
   }
 }
 
-/** GET all transactions */
-export async function GET(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const transactions = await getUserTransactions(userId);
-  return NextResponse.json(transactions);
-}
-
-/** POST create a new transaction */
 export async function POST(req: NextRequest) {
+  const userId = getUserId(req);
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isTrustedMutation(req)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+
+  let body: CreateTransactionDTO;
   try {
-    const userId = await getUserId(req);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
-    const body: CreateTransactionDTO = await req.json();
+  if (
+    typeof body.title !== "string" ||
+    !body.title.trim() ||
+    typeof body.categoryId !== "string" ||
+    typeof body.amount !== "number" ||
+    !Number.isFinite(body.amount) ||
+    body.amount < 0 ||
+    typeof body.transactionDate !== "string" ||
+    Number.isNaN(Date.parse(body.transactionDate))
+  ) {
+    return NextResponse.json({ error: "Invalid transaction data" }, { status: 400 });
+  }
 
-    // Optional: basic validation
-    if (!body.title || !body.categoryId || !body.amount) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
-    const transaction = await createTransaction(userId, body);
-
+  try {
+    const transaction = await createTransaction(userId, {
+      ...body,
+      title: body.title.trim(),
+    });
     return NextResponse.json(transaction, { status: 201 });
-  } catch (err: any) {
-    console.error("POST /transactions error:", err);
-    return NextResponse.json(
-      { error: err.message || "Server error" },
-      { status: 500 },
-    );
+  } catch (error) {
+    console.error("POST /api/transactions error:", error);
+    return NextResponse.json({ error: "Unable to create transaction" }, { status: 400 });
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getLoggedInUserBasicInfo } from "@/services/user.service";
 import { getUserId } from "../transactions/route";
@@ -21,7 +20,7 @@ export async function GET(req: NextRequest) {
       },
       { status: 200 },
     );
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 401 });
+  } catch {
+    return NextResponse.json({ message: "Unable to fetch user" }, { status: 500 });
   }
 }

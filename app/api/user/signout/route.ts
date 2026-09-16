@@ -1,17 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { isTrustedMutation } from "@/lib/requestSecurity";
+import { clearSessionCookie } from "@/lib/responseSecurity";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  if (!isTrustedMutation(req)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
   const response = NextResponse.json({ success: true, message: "Logged out" });
-
-  // Clear the cookie
-  response.cookies.set("token", "", {
-    httpOnly: true,
-    //for prod
-    // secure: process.env.NODE_ENV === "production",
-    secure: false,
-    maxAge: 0, // expire immediately
-    path: "/",
-  });
-
+  clearSessionCookie(response);
   return response;
 }

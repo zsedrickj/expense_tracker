@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { getExpenseByCategory } from "@/services/transaction.service";
 import { getUserId } from "../../route";
 
@@ -12,7 +11,7 @@ export async function GET(req: NextRequest) {
     const data = await getExpenseByCategory(userId);
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "Failed to fetch pie chart data" },
       { status: 500 },

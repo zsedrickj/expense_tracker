@@ -1,40 +1,35 @@
-// src/app/api/auth/login/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { login } from "@/services/auth.service";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { getClientIp, isTrustedMutation } from "@/lib/requestSecurity";
+import { sessionCookieOptions } from "@/lib/responseSecurity";
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
+  if (!isTrustedMutation(req)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+
+  let body: { email?: unknown; password?: unknown };
   try {
-    const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
-    if (!checkRateLimit(ip)) {
-      return NextResponse.json(
-        { error: "Too many login attempts. Try again later." },
-        { status: 429 },
-      );
-    }
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "invalid";
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`login:ip:${ip}`) || !checkRateLimit(`login:email:${email}`)) {
+    return NextResponse.json({ error: "Too many login attempts. Try again later." }, { status: 429 });
+  }
 
-    const body = await request.json();
-    const result = await login(body);
-
-    const response = NextResponse.json({
-      success: true,
-      user: result.user,
-    });
-
-    response.cookies.set("token", result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-    });
-
+  try {
+    const result = await login({ email, password: body.password as string });
+    const response = NextResponse.json({ success: true, user: result.user });
+    response.cookies.set("token", result.token, sessionCookieOptions);
     return response;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Internal server error" },
-      { status: error.status || 500 },
-    );
+  } catch (error: unknown) {
+    const status = typeof error === "object" && error && "status" in error
+      ? (error as { status?: number }).status
+      : undefined;
+    if (status === 401) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    return NextResponse.json({ error: "Invalid login request" }, { status: status === 400 ? 400 : 500 });
   }
 }

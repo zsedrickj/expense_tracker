@@ -30,6 +30,9 @@ export const createTransaction = async (
   // 1️⃣ Get server-controlled category
   const category = await Category.findById(data.categoryId);
   if (!category) throw new Error("Category not found");
+  if (category.userId.toString() !== userId) {
+    throw new Error("Category not found");
+  }
 
   // 2️⃣ Destructure only client fields (safe)
   const { title, amount, transactionDate } = data;
@@ -67,8 +70,9 @@ export const getUserTransactions = async (userId: string) => {
 /** Get single transaction by id */
 export const getTransactionById = async (
   id: string,
+  userId: string,
 ): Promise<TransactionDTO | null> => {
-  const transaction = await TransactionModel.findById(id).populate(
+  const transaction = await TransactionModel.findOne({ _id: id, userId }).populate(
     "categoryId",
     "name type",
   );
@@ -79,6 +83,7 @@ export const getTransactionById = async (
 
 export const updateTransaction = async (
   id: string,
+  userId: string,
   data: UpdateTransactionDTO,
 ): Promise<TransactionDTO | null> => {
   // Build update object dynamically to prevent overwriting
@@ -89,17 +94,25 @@ export const updateTransaction = async (
     updateData.transactionDate = data.transactionDate;
   if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
 
+  if (data.categoryId !== undefined) {
+    const category = await Category.findOne({ _id: data.categoryId, userId });
+    if (!category) throw new Error("Category not found");
+  }
+
   // Call repository
-  const updatedDoc = await updateTransactionRepo(id, updateData);
+  const updatedDoc = await updateTransactionRepo(id, userId, updateData);
 
   // Map to DTO
   return updatedDoc ? mapTransaction(updatedDoc) : null;
 };
 
 /** Delete a transaction */
-export const deleteTransaction = async (id: string): Promise<boolean> => {
-  const deleted = await TransactionModel.findByIdAndDelete(id);
-  return !!deleted;
+export const deleteTransaction = async (
+  id: string,
+  userId: string,
+): Promise<boolean> => {
+  const deleted = await TransactionModel.findOneAndDelete({ _id: id, userId });
+  return Boolean(deleted);
 };
 
 /** Get dashboard stats: total income, total expenses, balance */

@@ -85,34 +85,10 @@ export async function getUserById(userId: string): Promise<IUser | null> {
 export async function findUserByResetToken(token: string) {
   await DbConnnection();
 
-  // Step 1: hanapin kahit expired para malaman kung nandoon ang token
-  const userWithToken = await User.findOne({
-    resetPasswordToken: token,
-  }).lean();
-
-  console.log("[findUserByResetToken] token received:", token);
-  console.log(
-    "[findUserByResetToken] user found (no expiry check):",
-    userWithToken,
-  );
-  console.log(
-    "[findUserByResetToken] expires in DB:",
-    userWithToken?.resetPasswordExpires,
-  );
-  console.log("[findUserByResetToken] now:", new Date());
-
-  // Step 2: i-check kung expired
-  const userValid = await User.findOne({
+  return User.findOne({
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: new Date() },
   }).lean();
-
-  console.log(
-    "[findUserByResetToken] user valid (with expiry check):",
-    userValid,
-  );
-
-  return userValid;
 }
 
 export async function saveResetToken(

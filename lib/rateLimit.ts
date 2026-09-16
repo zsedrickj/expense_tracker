@@ -7,13 +7,26 @@ export const limiter = RateLimit({
   uniqueTokenPerInterval: 500, // max 500 unique IPs per interval
 });
 // src/lib/rate-limit.ts
-const ipCounts = new Map<string, { count: number; last: number }>();
+const requestCounts = new Map<string, { count: number; last: number }>();
 const WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 5;
+const MAX_TRACKED_KEYS = 10_000;
 
-export function checkRateLimit(ip: string) {
+function pruneExpiredEntries(now: number) {
+  for (const [key, entry] of requestCounts) {
+    if (now - entry.last > WINDOW_MS) requestCounts.delete(key);
+  }
+}
+
+export function checkRateLimit(key: string, maxRequests = MAX_REQUESTS) {
   const now = Date.now();
-  const entry = ipCounts.get(ip) || { count: 0, last: now };
+  pruneExpiredEntries(now);
+
+  if (!requestCounts.has(key) && requestCounts.size >= MAX_TRACKED_KEYS) {
+    return false;
+  }
+
+  const entry = requestCounts.get(key) || { count: 0, last: now };
 
   if (now - entry.last > WINDOW_MS) {
     entry.count = 1;
@@ -22,7 +35,7 @@ export function checkRateLimit(ip: string) {
     entry.count++;
   }
 
-  ipCounts.set(ip, entry);
+  requestCounts.set(key, entry);
 
-  return entry.count <= MAX_REQUESTS;
+  return entry.count <= maxRequests;
 }

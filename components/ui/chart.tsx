@@ -14,7 +14,7 @@ export type ChartConfig = {
 export const ChartContainer: React.FC<{
   config: ChartConfig;
   children: ReactNode;
-}> = ({ config, children }) => {
+}> = ({ children }) => {
   return <div className="w-full h-full">{children}</div>;
 };
 

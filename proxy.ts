@@ -14,7 +14,7 @@ export default function proxy(req: NextRequest) {
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/transaction") ||
     pathname.startsWith("/reports") ||
-    pathname.startsWith("/categories") ||
+    pathname.startsWith("/category") ||
     pathname.startsWith("/settings");
 
   // WALANG TOKEN → redirect sa login ("/")
@@ -31,7 +31,7 @@ export default function proxy(req: NextRequest) {
       if (isAuthPage) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
-    } catch (err) {
+    } catch {
       // INVALID o EXPIRED token → clear cookie + redirect sa login
       const res = NextResponse.redirect(new URL("/", req.url));
       res.cookies.delete("token"); // optional: clear expired token
@@ -49,7 +49,7 @@ export const config = {
     "/dashboard/:path*",
     "/transaction/:path*",
     "/reports/:path*",
-    "/categories/:path*",
+    "/category/:path*",
     "/settings/:path*",
   ],
 };

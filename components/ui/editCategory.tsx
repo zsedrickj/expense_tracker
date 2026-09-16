@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Swal from "sweetalert2";
 import { Category } from "@/types/category.types";
 import { X } from "lucide-react";
@@ -16,13 +16,6 @@ const EditCategory = ({ onClose, category }: EditCategoryProps) => {
   const { form, handleChange, submitEditCategory, loading, error } =
     useEditCategory(category._id, { name: category.name, type: category.type });
   const { refreshAll } = useRefresh();
-  const [type, setType] = useState<"income" | "expense">(category.type);
-
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    if (value === "income" || value === "expense") setType(value);
-  };
-
   const handleUpdate = async () => {
     const updated = await submitEditCategory();
     if (updated) {

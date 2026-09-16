@@ -1,80 +1,45 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { getUserCategories, createCategory } from "@/services/category.service";
-import { verifyToken } from "@/lib/jwt";
+import { createCategory, getUserCategories } from "@/services/category.service";
+import { getAuthenticatedUserId, isTrustedMutation } from "@/lib/requestSecurity";
 
-/** Type for the decoded JWT payload */
-interface CurrentUser {
-  id: string;
-  email: string;
-}
-
-/** Extract current user from request cookies (JWT) */
-function getCurrentUser(req: NextRequest): CurrentUser | null {
-  const cookie = req.cookies.get("token")?.value; // ✅ read from httpOnly cookie
-  if (!cookie) return null;
-
-  const decoded = verifyToken(cookie);
-  if (!decoded) return null;
-
-  return decoded as CurrentUser;
-}
-
-/** GET /api/categories */
 export async function GET(req: NextRequest) {
-  try {
-    const user = getCurrentUser(req);
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const categories = await getUserCategories(user.id);
-    return NextResponse.json(categories);
-  } catch (err: any) {
-    console.error("Error fetching categories:", err);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 },
-    );
+  try {
+    return NextResponse.json(await getUserCategories(userId));
+  } catch (error) {
+    console.error("GET /api/categories error:", error);
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
-/** POST /api/categories */
 export async function POST(req: NextRequest) {
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!isTrustedMutation(req)) return NextResponse.json({ message: "Invalid request origin" }, { status: 403 });
+
+  let body: { name?: unknown; type?: unknown };
   try {
-    const user = getCurrentUser(req);
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ message: "Invalid JSON body" }, { status: 400 });
+  }
 
-    const body = await req.json();
-    const { name, type } = body;
+  if (
+    typeof body.name !== "string" ||
+    !body.name.trim() ||
+    body.name.trim().length > 80 ||
+    (body.type !== "income" && body.type !== "expense")
+  ) {
+    return NextResponse.json({ message: "Invalid category data" }, { status: 400 });
+  }
 
-    // Validate name
-    if (!name || typeof name !== "string") {
-      return NextResponse.json(
-        { message: "Invalid category name" },
-        { status: 400 },
-      );
-    }
-
-    // Validate type strictly against CategoryType
-    if (type !== "income" && type !== "expense") {
-      return NextResponse.json(
-        { message: "Invalid category type" },
-        { status: 400 },
-      );
-    }
-
-    // Now TypeScript knows 'type' is CategoryType
-    const newCategory = await createCategory(user.id, { name, type });
-
-    return NextResponse.json(newCategory, { status: 201 });
-  } catch (err: any) {
-    console.error("Error creating category:", err);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 },
-    );
+  try {
+    const category = await createCategory(userId, { name: body.name.trim(), type: body.type });
+    return NextResponse.json(category, { status: 201 });
+  } catch (error) {
+    console.error("POST /api/categories error:", error);
+    return NextResponse.json({ message: "Unable to create category" }, { status: 400 });
   }
 }

@@ -1,85 +1,43 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import {
   changeLoggedInUserPassword,
   getLoggedInUserPassword,
 } from "@/services/user.service";
-
-// 🔹 Get userId from cookie token
-async function getUserId(req: NextRequest): Promise<string | null> {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
-
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: string;
-    };
-    return payload.id;
-  } catch (err) {
-    return null;
-  }
-}
+import { getAuthenticatedUserId, isTrustedMutation } from "@/lib/requestSecurity";
 
 export async function PUT(req: NextRequest) {
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isTrustedMutation(req)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+
+  let body: { oldPassword?: unknown; newPassword?: unknown };
   try {
-    // 1️⃣ Get userId from JWT cookie
-    const userId = await getUserId(req);
-    if (!userId)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
-    // 2️⃣ Parse request body
-    const body = await req.json();
-    const { oldPassword, newPassword } = body;
+  if (typeof body.oldPassword !== "string" || typeof body.newPassword !== "string") {
+    return NextResponse.json({ error: "All fields are required" }, { status: 400 });
+  }
+  if (body.newPassword.length < 8) {
+    return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+  }
 
-    if (!oldPassword || !newPassword) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 },
-      );
-    }
-
-    if (newPassword.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 },
-      );
-    }
-
-    // 3️⃣ Get current password from service
+  try {
     const user = await getLoggedInUserPassword(userId);
-
-    // 4️⃣ Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return NextResponse.json(
-        { error: "Incorrect current password" },
-        { status: 400 },
-      );
+    if (!(await bcrypt.compare(body.oldPassword, user.password))) {
+      return NextResponse.json({ error: "Incorrect current password" }, { status: 400 });
+    }
+    if (await bcrypt.compare(body.newPassword, user.password)) {
+      return NextResponse.json({ error: "New password must be different from current password" }, { status: 400 });
     }
 
-    // 5️⃣ Prevent same password reuse
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
-    if (isSamePassword) {
-      return NextResponse.json(
-        { error: "New password must be different from current password" },
-        { status: 400 },
-      );
-    }
-
-    // 6️⃣ Hash new password
-    const hashed = await bcrypt.hash(newPassword, 10);
-
-    // 7️⃣ Update password via service
-    await changeLoggedInUserPassword(userId, hashed);
-
+    await changeLoggedInUserPassword(userId, await bcrypt.hash(body.newPassword, 12));
     return NextResponse.json({ message: "Password updated successfully" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("CHANGE PASSWORD ERROR:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Unable to update password" }, { status: 500 });
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createCategory as createCategoryRepo,
   getUserCategories as getUserCategoriesRepo,
@@ -43,24 +42,26 @@ export const getUserCategories = async (
 /** Get single category by id */
 export const getCategoryById = async (
   id: string,
+  userId: string,
 ): Promise<CategoryDTO | null> => {
-  return getCategoryByIdRepo(id);
+  return getCategoryByIdRepo(id, userId);
 };
 
 /** Update a category */
 export const updateCategory = async (
   id: string,
+  userId: string,
   data: UpdateCategoryDTO,
 ): Promise<CategoryDTO | null> => {
   const { name, type } = data;
 
-  return updateCategoryRepo(id, {
+  return updateCategoryRepo(id, userId, {
     ...(name && { name }),
     ...(type && { type }),
   });
 };
 
 /** Delete a category */
-export const deleteCategory = async (id: string): Promise<boolean> => {
-  return deleteCategoryRepo(id);
+export const deleteCategory = async (id: string, userId: string): Promise<boolean> => {
+  return deleteCategoryRepo(id, userId);
 };

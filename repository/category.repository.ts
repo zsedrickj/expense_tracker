@@ -29,25 +29,30 @@ export async function getUserCategories(
   return docs.map(mapCategory);
 }
 
-export async function getCategoryById(id: string): Promise<CategoryDTO | null> {
+export async function getCategoryById(
+  id: string,
+  userId: string,
+): Promise<CategoryDTO | null> {
   await DbConnection();
-  const doc = await CategoryModel.findById(id);
+  const doc = await CategoryModel.findOne({ _id: id, userId });
   return doc ? mapCategory(doc) : null;
 }
 
 export async function updateCategory(
   id: string,
+  userId: string,
   data: any,
 ): Promise<CategoryDTO | null> {
   await DbConnection();
-  const doc = await CategoryModel.findByIdAndUpdate(id, data, {
+  const doc = await CategoryModel.findOneAndUpdate({ _id: id, userId }, data, {
     new: true,
+    runValidators: true,
   });
   return doc ? mapCategory(doc) : null;
 }
 
-export async function deleteCategory(id: string): Promise<boolean> {
+export async function deleteCategory(id: string, userId: string): Promise<boolean> {
   await DbConnection();
-  const doc = await CategoryModel.findByIdAndDelete(id);
+  const doc = await CategoryModel.findOneAndDelete({ _id: id, userId });
   return !!doc;
 }

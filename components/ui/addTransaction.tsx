@@ -7,12 +7,14 @@ import { useModal } from "@/hooks/useModal";
 import { useRefresh } from "@/app/(protected)/RefreshContext";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { useCurrency } from "@/app/(protected)/CurrencyContext";
 
 const MySwal = withReactContent(Swal);
 
 const AddTransaction = () => {
   const { showAddTransaction, closeAddTransaction } = useModal();
   const { refreshAll } = useRefresh();
+  const { currency } = useCurrency();
   const { form, handleChange, submitTransaction, loading, error } =
     useAddTransaction();
   const {
@@ -99,7 +101,7 @@ const AddTransaction = () => {
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Amount
+              Amount ({currency.code})
             </label>
             <input
               type="number"

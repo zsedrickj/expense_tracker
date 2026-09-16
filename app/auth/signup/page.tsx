@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import ThemeToggle from "@/components/ui/themeToggle";
 
 export const SignUpForm = () => {
   const router = useRouter();
@@ -101,7 +102,10 @@ export const SignUpForm = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900 overflow-hidden">
+    <div className="relative h-screen w-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900 overflow-hidden">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle />
+      </div>
       {/* Card */}
       <div className="flex flex-col w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl mx-4 sm:mx-0">
         {/* Header */}

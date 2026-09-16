@@ -10,6 +10,9 @@ import {
   findUserByResetToken,
   clearResetToken,
 } from "@/repository/user.repository";
+import { convertUserTransactionAmounts } from "@/repository/transaction.repository";
+import { getLatestExchangeRate } from "@/lib/exchangeRates";
+import { isSupportedCurrency, type CurrencyCode } from "@/lib/currency";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import { sendResetEmail } from "@/lib/email";
@@ -78,17 +81,47 @@ export async function changeUserPreferredCurrency(
 ) {
   if (!currency) throw new Error("Currency is required");
 
-  // Optional: validate against allowed currencies
-  const validCurrencies = ["USD", "PHP", "EUR", "JPY", "GBP"]; // example list
-  if (!validCurrencies.includes(currency.toUpperCase())) {
+  const targetCurrency = currency.toUpperCase();
+  if (!isSupportedCurrency(targetCurrency)) {
     throw new Error("Invalid currency");
   }
 
-  const updatedUser = await updateUserPreferredCurrency(userId, currency);
+  const user = await getUserById(userId);
+  if (!user) throw new Error("User not found");
+
+  const sourceCurrency = user.preferredCurrency.toUpperCase();
+  if (!isSupportedCurrency(sourceCurrency)) {
+    throw new Error("Your current currency is not supported for conversion");
+  }
+
+  if (sourceCurrency === targetCurrency) {
+    return {
+      user,
+      rate: 1,
+      rateDate: new Date().toISOString().slice(0, 10),
+      convertedTransactions: 0,
+    };
+  }
+
+  const { rate, rateDate } = await getLatestExchangeRate(
+    sourceCurrency as CurrencyCode,
+    targetCurrency,
+  );
+  const conversion = await convertUserTransactionAmounts(
+    userId,
+    rate,
+    targetCurrency,
+  );
+  const updatedUser = await updateUserPreferredCurrency(userId, targetCurrency);
 
   if (!updatedUser) throw new Error("User not found");
 
-  return updatedUser;
+  return {
+    user: updatedUser,
+    rate,
+    rateDate,
+    convertedTransactions: conversion.modifiedCount,
+  };
 }
 
 export async function getUserCurrency(userId: string) {

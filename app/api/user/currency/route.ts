@@ -33,11 +33,14 @@ export async function POST(req: NextRequest) {
 
     const { currency } = await req.json();
 
-    const updatedUser = await changeUserPreferredCurrency(userId, currency);
+    const result = await changeUserPreferredCurrency(userId, currency);
 
     return NextResponse.json({
       success: true,
-      currency: updatedUser.preferredCurrency,
+      currency: result.user.preferredCurrency,
+      rate: result.rate,
+      rateDate: result.rateDate,
+      convertedTransactions: result.convertedTransactions,
     });
   } catch (error: any) {
     return NextResponse.json(

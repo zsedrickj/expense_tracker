@@ -11,7 +11,6 @@ import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import Swal from "sweetalert2";
 import { CurrencyProvider } from "./CurrencyContext";
-import { ThemeProvider } from "./ThemeContext";
 
 export default function ProtectedLayout({
   children,
@@ -22,9 +21,7 @@ export default function ProtectedLayout({
     <RefreshProvider>
       <ModalProvider>
         <CurrencyProvider>
-          <ThemeProvider>
-            <LayoutContent>{children}</LayoutContent>
-          </ThemeProvider>
+          <LayoutContent>{children}</LayoutContent>
         </CurrencyProvider>
       </ModalProvider>
     </RefreshProvider>

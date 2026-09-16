@@ -3,6 +3,7 @@
 import { useCurrency } from "@/app/(protected)/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useHorizontalChart } from "@/hooks/useHorizontalChart";
+import { formatCurrency } from "@/lib/currency";
 
 const COLORS = [
   "var(--chart-1)",
@@ -64,8 +65,7 @@ export function ChartBarLabelCustom() {
                           {item.percent}%
                         </span>
                         <span className="font-semibold text-foreground w-20 text-right">
-                          {currency.symbol}
-                          {item.value.toLocaleString()}.00
+                          {formatCurrency(item.value, currency.code)}
                         </span>
                       </div>
                     </div>

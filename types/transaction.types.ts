@@ -9,6 +9,7 @@ export interface Transaction {
   categoryId: CategoryRef | null;
   title: string;
   amount: number;
+  currency?: string;
   transactionDate: string;
   createdAt: string;
   updatedAt: string;

@@ -1,18 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export async function updateUserPreferredCurrency(currency: string): Promise<string> {
-  try {
-    const res = await fetch("/api/user/currency", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currency }),
-    });
+export type CurrencyConversionResult = {
+  currency: string;
+  rate: number;
+  rateDate: string;
+  convertedTransactions: number;
+};
 
-    const data = await res.json();
-    if (!data.success) throw new Error(data.message || "Failed to update");
+export async function updateUserPreferredCurrency(
+  currency: string,
+): Promise<CurrencyConversionResult> {
+  const res = await fetch("/api/user/currency", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ currency }),
+  });
 
-    return data.currency; // updated preferredCurrency from backend
-  } catch (error: any) {
-    console.error("Error updating preferred currency:", error.message);
-    return currency; // fallback
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to update currency");
   }
+
+  return data;
 }

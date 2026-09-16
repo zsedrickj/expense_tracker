@@ -11,6 +11,7 @@ import React, {
 interface RefreshContextType {
   dashboardKey: number;
   transactionKey: number;
+  reportKey: number;
   refreshDashboard: () => void;
   refreshTransactions: () => void;
   refreshAll: () => void;
@@ -21,6 +22,7 @@ const RefreshContext = createContext<RefreshContextType | undefined>(undefined);
 export const RefreshProvider = ({ children }: { children: ReactNode }) => {
   const [dashboardKey, setDashboardKey] = useState(0);
   const [transactionKey, setTransactionKey] = useState(0);
+  const [reportKey, setReportKey] = useState(0);
 
   const refreshDashboard = useCallback(() => {
     setDashboardKey((prev) => prev + 1);
@@ -33,6 +35,7 @@ export const RefreshProvider = ({ children }: { children: ReactNode }) => {
   const refreshAll = useCallback(() => {
     setDashboardKey((prev) => prev + 1);
     setTransactionKey((prev) => prev + 1);
+    setReportKey((prev) => prev + 1);
   }, []);
 
   return (
@@ -40,6 +43,7 @@ export const RefreshProvider = ({ children }: { children: ReactNode }) => {
       value={{
         dashboardKey,
         transactionKey,
+        reportKey,
         refreshDashboard,
         refreshTransactions,
         refreshAll,

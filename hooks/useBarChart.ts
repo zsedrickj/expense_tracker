@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchMonthlyReport } from "@/usecases/getBarChart";
+import { useRefresh } from "@/app/(protected)/RefreshContext";
 
 interface MonthlyReport {
   month: string;
@@ -14,6 +15,7 @@ export const useBarChart = () => {
   const [data, setData] = useState<MonthlyReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { reportKey } = useRefresh();
 
   const loadReport = async () => {
     try {
@@ -29,7 +31,7 @@ export const useBarChart = () => {
 
   useEffect(() => {
     loadReport();
-  }, []);
+  }, [reportKey]);
 
   return { data, loading, error, refetch: loadReport };
 };

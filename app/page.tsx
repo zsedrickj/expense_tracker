@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "@/app/(protected)/ThemeContext"; // i-adjust ang path kung iba ang location mo
+import { useTheme } from "@/app/(protected)/ThemeContext";
+import ThemeToggle from "@/components/ui/themeToggle";
 
 export default function Home() {
-  const { darkMode, setDarkMode } = useTheme();
+  const { darkMode } = useTheme();
 
   return (
     <main
@@ -36,8 +37,9 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Right side: toggle + get started */}
+          {/* Right side: theme toggle + get started */}
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/auth/login"
               className="bg-green-500 hover:bg-green-400 text-white   font-semibold px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base transition-colors duration-200 whitespace-nowrap"

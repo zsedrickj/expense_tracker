@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { getPieChart, PieChartData } from "@/usecases/getPieChart";
+import { useRefresh } from "@/app/(protected)/RefreshContext";
 
 export const usePieChart = () => {
   const [data, setData] = useState<PieChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { reportKey } = useRefresh();
 
   const fetchData = async () => {
     try {
@@ -21,7 +23,7 @@ export const usePieChart = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [reportKey]);
 
   return {
     data,

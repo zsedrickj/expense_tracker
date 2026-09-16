@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 /* Custom variant for Tailwind dark utilities */
-@custom-variant dark (&:is(.theme-dark *));
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));
 
 @theme inline {
   --color-background: var(--background);

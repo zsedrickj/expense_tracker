@@ -69,6 +69,8 @@ export async function updateUserPreferredCurrency(
   userId: string,
   currency: string,
 ): Promise<IUser | null> {
+  await DbConnnection();
+
   return User.findByIdAndUpdate(
     userId,
     { preferredCurrency: currency.toUpperCase() },
@@ -76,6 +78,7 @@ export async function updateUserPreferredCurrency(
   );
 }
 export async function getUserById(userId: string): Promise<IUser | null> {
+  await DbConnnection();
   return User.findById(userId);
 }
 

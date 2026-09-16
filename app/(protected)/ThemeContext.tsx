@@ -1,11 +1,16 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 
 type ThemeContextType = {
   darkMode: boolean;
-  setDarkMode: (val: boolean) => void;
+  setDarkMode: (enabled: boolean) => void;
 };
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -13,22 +18,45 @@ const ThemeContext = createContext<ThemeContextType>({
   setDarkMode: () => {},
 });
 
+const THEME_STORAGE_KEY = "darkMode";
+const THEME_CHANGE_EVENT = "expense-tracker-theme-change";
+
+function getStoredTheme() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(THEME_STORAGE_KEY) === "true";
+}
+
+function subscribeToTheme(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function applyTheme(enabled: boolean) {
+  document.documentElement.classList.toggle("theme-dark", enabled);
+  document.documentElement.style.colorScheme = enabled ? "dark" : "light";
+}
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [darkMode, setDarkModeState] = useState(false);
+  const darkMode = useSyncExternalStore(
+    subscribeToTheme,
+    getStoredTheme,
+    () => false,
+  );
 
   useEffect(() => {
-    const stored = localStorage.getItem("darkMode");
-    if (stored === "true") {
-      setDarkModeState(true);
-      document.documentElement.classList.add("theme-dark"); // ← .theme-dark, hindi .dark
-    }
-  }, []);
+    applyTheme(darkMode);
+  }, [darkMode]);
 
-  const setDarkMode = (val: boolean) => {
-    setDarkModeState(val);
-    localStorage.setItem("darkMode", String(val));
-    document.documentElement.classList.toggle("theme-dark", val); // ← .theme-dark
-  };
+  const setDarkMode = useCallback((enabled: boolean) => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, String(enabled));
+    applyTheme(enabled);
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ darkMode, setDarkMode }}>

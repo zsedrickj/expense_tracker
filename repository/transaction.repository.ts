@@ -20,6 +20,7 @@ const mapTransaction = (doc: any): TransactionDTO => ({
     : null,
   title: doc.title,
   amount: doc.amount,
+  currency: doc.currency,
   transactionDate: doc.transactionDate.toISOString(),
   createdAt: doc.createdAt.toISOString(),
   updatedAt: doc.updatedAt.toISOString(),
@@ -154,4 +155,25 @@ export async function getCategoryByTransactionRepo(userId: string) {
   ]);
 
   return result;
+}
+
+export async function convertUserTransactionAmounts(
+  userId: string,
+  rate: number,
+  currency: string,
+) {
+  await DbConnection();
+
+  return TransactionModel.updateMany(
+    { userId },
+    [
+      {
+        $set: {
+          amount: { $round: [{ $multiply: ["$amount", rate] }, 2] },
+          currency,
+        },
+      },
+    ],
+    { updatePipeline: true },
+  );
 }

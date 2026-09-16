@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { useDashboardTable } from "@/hooks/useDashboardTable";
 import { useCurrency } from "@/app/(protected)/CurrencyContext";
+import { formatCurrency } from "@/lib/currency";
 
 const DashboardTable: React.FC = () => {
   const { search, setSearch, filteredTransactions } = useDashboardTable();
@@ -63,8 +64,7 @@ const DashboardTable: React.FC = () => {
                           : "text-rose-500"
                       }
                     >
-                      {currency.symbol}
-                      {item.amount}
+                      {formatCurrency(item.amount, currency.code)}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(item.createdAt).toLocaleDateString()}

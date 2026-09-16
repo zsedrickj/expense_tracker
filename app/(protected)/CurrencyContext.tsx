@@ -1,25 +1,22 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { createContext, useContext, ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { type CurrencyCode, isSupportedCurrency } from "@/lib/currency";
 import { useUserPreferredCurrency } from "@/hooks/useUserPreferredCurrency";
 
-// 🔹 Currency type
 type Currency = {
-  code: string;
-  symbol: string;
+  code: CurrencyCode;
 };
 
-// 🔹 Supported currencies
-const currencies: Record<string, Currency> = {
-  PHP: { code: "PHP", symbol: "₱" },
-  USD: { code: "USD", symbol: "$" },
-  EUR: { code: "EUR", symbol: "€" },
-  JPY: { code: "JPY", symbol: "¥" },
-  GBP: { code: "GBP", symbol: "£" },
+const currencies: Record<CurrencyCode, Currency> = {
+  PHP: { code: "PHP" },
+  USD: { code: "USD" },
+  EUR: { code: "EUR" },
+  JPY: { code: "JPY" },
+  GBP: { code: "GBP" },
 };
 
-// 🔹 Context type
 interface CurrencyContextType {
   currency: Currency;
   setCurrency: (code: string) => void;
@@ -27,7 +24,6 @@ interface CurrencyContextType {
   error: string | null;
 }
 
-// 🔹 Default values
 const CurrencyContext = createContext<CurrencyContextType>({
   currency: currencies.PHP,
   setCurrency: () => {},
@@ -36,24 +32,25 @@ const CurrencyContext = createContext<CurrencyContextType>({
 });
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  // 🔹 Use your existing hook
-  const { currency: userCurrency, setCurrency: setUserCurrency, loading, error } =
-    useUserPreferredCurrency();
-
+  const {
+    currency: userCurrency,
+    setCurrency: setUserCurrency,
+    loading,
+    error,
+  } = useUserPreferredCurrency();
   const [currency, setCurrencyState] = useState<Currency>(currencies.PHP);
 
-  // 🔹 Map string from backend to currency object
   useEffect(() => {
-    if (userCurrency && currencies[userCurrency]) {
+    if (isSupportedCurrency(userCurrency)) {
       setCurrencyState(currencies[userCurrency]);
     }
   }, [userCurrency]);
 
-  // 🔹 Update function for context
   const setCurrency = (code: string) => {
-    if (!currencies[code]) return;
+    if (!isSupportedCurrency(code)) return;
+
     setCurrencyState(currencies[code]);
-    setUserCurrency(code); // also updates backend via hook
+    setUserCurrency(code);
   };
 
   return (

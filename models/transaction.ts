@@ -28,7 +28,7 @@ const TransactionSchema = new mongoose.Schema(
     currency: {
       type: String,
       uppercase: true,
-      enum: ["USD", "PHP", "EUR", "JPY"],
+      enum: ["USD", "PHP", "EUR", "JPY", "GBP"],
     },
   },
   {

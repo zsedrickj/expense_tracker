@@ -9,6 +9,7 @@ import {
 } from "@/hooks/useEditTransaction";
 import { Transaction } from "@/types/transaction.types";
 import Swal from "sweetalert2";
+import { useCurrency } from "@/app/(protected)/CurrencyContext";
 
 type EditTransactionProps = {
   transaction: Transaction;
@@ -21,6 +22,7 @@ const EditTransaction = ({
   onClose,
   onUpdate,
 }: EditTransactionProps) => {
+  const { currency } = useCurrency();
   const {
     categories,
     loading: categoriesLoading,
@@ -116,7 +118,7 @@ const EditTransaction = ({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Amount
+              Amount ({currency.code})
             </label>
             <input
               type="number"

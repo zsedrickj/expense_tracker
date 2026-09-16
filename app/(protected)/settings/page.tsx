@@ -9,6 +9,7 @@ import { useUpdatePreferredCurrency } from "@/hooks/useUpdatePreferredCurrency";
 import { useRefresh } from "../RefreshContext";
 import { useCurrency } from "../CurrencyContext";
 import { useTheme } from "../ThemeContext";
+import Swal from "sweetalert2";
 
 const Toggle = ({
   enabled,
@@ -18,8 +19,11 @@ const Toggle = ({
   onChange: (val: boolean) => void;
 }) => (
   <button
+    type="button"
     onClick={() => onChange(!enabled)}
-    className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
+    aria-label={enabled ? "Disable dark mode" : "Enable dark mode"}
+    aria-pressed={enabled}
+    className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background shrink-0 ${
       enabled ? "bg-emerald-500" : "bg-muted"
     }`}
   >
@@ -61,7 +65,7 @@ const Settings = () => {
   const router = useRouter();
   const [showChangePassword, setShowChangePassword] = useState(false);
   const { darkMode, setDarkMode } = useTheme();
-  const { refreshDashboard } = useRefresh();
+  const { refreshAll } = useRefresh();
   const { setCurrency: setCurrencyContext } = useCurrency();
 
   const {
@@ -88,13 +92,31 @@ const Settings = () => {
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const selectedCurrency = e.target.value.toUpperCase();
-    setCurrency(selectedCurrency);
+    if (selectedCurrency === currency) return;
+
     try {
-      setCurrencyContext(selectedCurrency);
-      await updateCurrency(selectedCurrency);
-      refreshDashboard();
-    } catch (err) {
+      const result = await updateCurrency(selectedCurrency);
+      setCurrency(result.currency);
+      setCurrencyContext(result.currency);
+      refreshAll();
+
+      await Swal.fire({
+        icon: "success",
+        title: "Currency converted",
+        text: `${result.convertedTransactions} transaction(s) converted at 1 ${currency} = ${Number(result.rate).toLocaleString(undefined, { maximumFractionDigits: 6 })} ${result.currency} (rate date: ${result.rateDate}).`,
+        timer: 3500,
+        showConfirmButton: false,
+      });
+    } catch (err: unknown) {
       console.error("Failed to update currency:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Currency not changed",
+        text:
+          err instanceof Error
+            ? err.message
+            : "Unable to convert your transactions. Please try again.",
+      });
     }
   };
 

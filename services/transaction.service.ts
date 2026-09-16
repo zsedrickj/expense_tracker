@@ -13,12 +13,20 @@ import {
   getExpenseByCategoryRepo,
   updateTransactionRepo,
 } from "@/repository/transaction.repository";
+import { getUserById } from "@/repository/user.repository";
+import { isSupportedCurrency } from "@/lib/currency";
 
 /** Create a new transaction */
 export const createTransaction = async (
   userId: string,
   data: CreateTransactionDTO,
 ): Promise<TransactionDTO> => {
+  const user = await getUserById(userId);
+  const preferredCurrency = user?.preferredCurrency ?? "";
+  const currency = isSupportedCurrency(preferredCurrency)
+    ? preferredCurrency
+    : "PHP";
+
   // 1️⃣ Get server-controlled category
   const category = await Category.findById(data.categoryId);
   if (!category) throw new Error("Category not found");
@@ -32,6 +40,7 @@ export const createTransaction = async (
     categoryId: category._id,
     title,
     amount,
+    currency,
     transactionDate,
   });
 
@@ -49,6 +58,7 @@ export const getUserTransactions = async (userId: string) => {
     id: tx._id.toString(),
     title: tx.title,
     amount: tx.amount,
+    currency: tx.currency,
     categoryId: tx.categoryId,
     createdAt: tx.createdAt,
   }));
@@ -288,6 +298,7 @@ const mapTransaction = (doc: any): TransactionDTO => ({
     : doc.categoryId.toString(),
   title: doc.title,
   amount: doc.amount,
+  currency: doc.currency,
   transactionDate: doc.transactionDate.toISOString(),
   createdAt: doc.createdAt.toISOString(),
   updatedAt: doc.updatedAt.toISOString(),

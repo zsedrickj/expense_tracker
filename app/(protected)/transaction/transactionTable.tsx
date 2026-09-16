@@ -19,6 +19,7 @@ import { Transaction } from "@/types/transaction.types";
 import { useRefresh } from "@/app/(protected)/RefreshContext";
 import Swal from "sweetalert2";
 import { useCurrency } from "../CurrencyContext";
+import { formatCurrency } from "@/lib/currency";
 
 type FilterButton = { name: string; value: string };
 
@@ -189,8 +190,7 @@ const TransactionTable: React.FC = () => {
                           : "text-rose-500"
                       }
                     >
-                      {currency.symbol}
-                      {item.amount}
+                      {formatCurrency(item.amount, currency.code)}
                     </span>
                   </TableCell>
                   <TableCell className="text-center">

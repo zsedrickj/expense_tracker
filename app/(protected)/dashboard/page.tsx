@@ -8,6 +8,7 @@ import { useModal } from "@/hooks/useModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useCurrency } from "../CurrencyContext";
+import { formatCurrency } from "@/lib/currency";
 
 export default function DashboardPage() {
   const isVerified = useAuthGuard();
@@ -67,8 +68,7 @@ export default function DashboardPage() {
                       {item.title}
                     </p>
                     <h1 className="text-2xl font-semibold text-foreground">
-                      {currency.symbol}
-                      {item.amount.toLocaleString().split(" ")[0]}
+                      {formatCurrency(item.amount, currency.code)}
                     </h1>
                   </div>
                 </div>

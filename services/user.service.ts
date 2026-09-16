@@ -14,7 +14,7 @@ import { convertUserTransactionAmounts } from "@/repository/transaction.reposito
 import { getLatestExchangeRate } from "@/lib/exchangeRates";
 import { isSupportedCurrency, type CurrencyCode } from "@/lib/currency";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { sendResetEmail } from "@/lib/email";
 
 export async function getLoggedInUserBasicInfo(userId: string) {

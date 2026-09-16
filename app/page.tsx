@@ -4,6 +4,16 @@ import Link from "next/link";
 import { useTheme } from "@/app/(protected)/ThemeContext";
 import ThemeToggle from "@/components/ui/themeToggle";
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "ExpenseTracker",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Web",
+  description:
+    "Track income, manage expenses, and understand your budget with ExpenseTracker.",
+};
+
 export default function Home() {
   const { darkMode } = useTheme();
 
@@ -12,6 +22,10 @@ export default function Home() {
       className="min-h-screen w-full overflow-x-hidden relative transition-colors duration-300 flex flex-col"
       style={{ background: "var(--background)", color: "var(--foreground)" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Background green radial glow */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -23,7 +37,7 @@ export default function Home() {
       />
 
       {/* Navbar */}
-      <nav className="relative z-10 py-4 sm:py-5 shrink-0">
+      <nav aria-label="Main navigation" className="relative z-10 py-4 sm:py-5 shrink-0">
         <div className="flex items-center justify-between px-5 sm:px-8 lg:px-10 max-w-screen-xl mx-auto">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3">

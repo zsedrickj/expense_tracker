@@ -1,7 +1,7 @@
 // src/services/auth.service.ts
 import "server-only";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generateToken } from "@/lib/jwt";
 import { createUser, findUserByEmail } from "@/repository/user.repository";
 import { LoginDTO, RegisterDTO } from "@/types/auth.types";

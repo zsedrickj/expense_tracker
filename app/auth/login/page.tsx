@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import ForgotPassword from "@/components/ui/forgotPassword";
 import ThemeToggle from "@/components/ui/themeToggle";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -14,9 +15,19 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    
+     if (!executeRecaptcha) {
+      console.log("reCAPTCHA not ready");
+      return;
+    }
+
+    const token = await executeRecaptcha("login");
+    console.log(token);
 
     if (!email || !password) {
       Swal.fire({

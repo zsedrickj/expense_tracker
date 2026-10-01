@@ -7,10 +7,13 @@ export default function RecaptchaProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  console.log("reCAPTCHA site key:", siteKey);
+  console.log("reCAPTCHA site key exists:", !!siteKey);
+
   return (
-    <GoogleReCaptchaProvider
-      reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-    >
+    <GoogleReCaptchaProvider reCaptchaKey={siteKey || ""}>
       {children}
     </GoogleReCaptchaProvider>
   );

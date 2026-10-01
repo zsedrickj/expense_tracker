@@ -18,78 +18,96 @@ const LoginForm = () => {
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    
-     if (!executeRecaptcha) {
-      console.log("reCAPTCHA not ready");
-      return;
-    }
+  // 1. Validate required fields first
+  if (!email || !password) {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Please fill in all fields!",
+    });
+    return;
+  }
 
+  // 2. Validate email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Email",
+      text: "Please enter a valid email address",
+    });
+    return;
+  }
+
+  // 3. Check if reCAPTCHA is ready
+  if (!executeRecaptcha) {
+    Swal.fire({
+      icon: "warning",
+      title: "Security Check Loading",
+      text: "Please wait a moment and try again.",
+    });
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // 4. Generate reCAPTCHA token
     const token = await executeRecaptcha("login");
-    console.log(token);
+console.log(
+  "reCAPTCHA token generated:",
+  !!token
+);
+    // 5. Send token to backend
+    const res = await fetch("/api/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        recaptchaToken: token,
+      }),
+    });
 
-    if (!email || !password) {
+    const data = await res.json();
+
+    if (!res.ok) {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Please fill in all fields!",
+        title: "Login Failed",
+        text: data.error || data.message || "Something went wrong",
       });
+
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Email",
-        text: "Please enter a valid email address",
-      });
-      return;
-    }
+    Swal.fire({
+      icon: "success",
+      title: "Login Successful",
+      text: `Welcome back, ${data.user.email}!`,
+    }).then(() => {
+      router.replace("/dashboard");
+    });
 
-    try {
-      setLoading(true);
+    setEmail("");
+    setPassword("");
+  } catch (error) {
+    console.error("Login error:", error);
 
-      const res = await fetch("/api/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: data.error || data.message || "Something went wrong",
-        });
-        setLoading(false);
-        return;
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Login Successful",
-        text: `Welcome back, ${data.user.email}!`,
-      }).then(() => {
-        router.replace("/dashboard");
-      });
-
-      setEmail("");
-      setPassword("");
-      setLoading(false);
-    } catch (error) {
-      console.error("Login error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Something went wrong. Please try again later.",
-      });
-      setLoading(false);
-    }
-  };
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Something went wrong. Please try again later.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="relative h-screen w-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900 overflow-hidden">
